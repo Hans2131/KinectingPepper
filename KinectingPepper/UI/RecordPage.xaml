@@ -10,17 +10,23 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="90"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="60"></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
+        <local:BodyViewer Grid.Row="0" x:Name="bodyViewer" Margin="10"/>
+        <Grid Grid.Row="1" x:Name="buttonFooter" Margin="10 0 10 15">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"></ColumnDefinition>
                 <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <Label  Grid.Column="0" Margin="10 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Top">Select camera type:</Label>
-            <ComboBox Grid.Column="1" Name="cbxCameraType" Margin="10 0 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="cbxCameraType_SelectionChanged"></ComboBox>
+            <Label  Grid.Column="0" Margin="20 10 0 0" HorizontalAlignment="Left" VerticalAlignment="Top">Select camera type:</Label>
+            <ComboBox Grid.Column="1" Name="cbxCameraType" Margin="20 15 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="cbxCameraType_SelectionChanged"></ComboBox>
+            <Button Grid.Column="2" Name="startButton" Margin="10 0 10 0" Click="startButton_Click" HorizontalAlignment="Stretch">Start</Button>
+            <Button Grid.Column="3" Name="stopButton" Margin="10 0 10 0" Click="stopButton_Click"  HorizontalAlignment="Stretch">Stop</Button>
+            <Label Grid.Column="4" Name="placeholder2"></Label>
         </Grid>
-        <local:BodyViewer Grid.Row="1" x:Name="bodyViewer" Margin="10"/>
     </Grid>
 </Page>
