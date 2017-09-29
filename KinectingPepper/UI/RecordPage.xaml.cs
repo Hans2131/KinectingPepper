@@ -56,8 +56,8 @@ namespace Kinect_ing_Pepper.UI
                     {
                         if (colorFrame != null)
                         {
-                            skeletonViewer.UpdateFrameCounter();
-                            skeletonViewer.KinectImage = frameParser.ParseToBitmap(colorFrame);
+                            bodyViewer.UpdateFrameCounter();
+                            bodyViewer.KinectImage = frameParser.ParseToBitmap(colorFrame);
                         }
                     }
                     break;
@@ -67,8 +67,8 @@ namespace Kinect_ing_Pepper.UI
                     {
                         if (depthFrame != null)
                         {
-                            skeletonViewer.UpdateFrameCounter();
-                            skeletonViewer.KinectImage = frameParser.ParseToBitmap(depthFrame);
+                            bodyViewer.UpdateFrameCounter();
+                            bodyViewer.KinectImage = frameParser.ParseToBitmap(depthFrame);
                         }
                     }
                     break;
@@ -77,8 +77,8 @@ namespace Kinect_ing_Pepper.UI
                     {
                         if (infraredFrame != null)
                         {
-                            skeletonViewer.UpdateFrameCounter();
-                            skeletonViewer.KinectImage = frameParser.ParseToBitmap(infraredFrame);
+                            bodyViewer.UpdateFrameCounter();
+                            bodyViewer.KinectImage = frameParser.ParseToBitmap(infraredFrame);
                         }
                     }
                     break;
@@ -98,12 +98,12 @@ namespace Kinect_ing_Pepper.UI
                     //choose body?
                     if (trackedBodies.Any())
                     {
-                        skeletonViewer.RenderBodies(trackedBodies, _selectedCamera);
+                        bodyViewer.RenderBodies(trackedBodies, _selectedCamera);
                     }
                 }
                 else
                 {
-                    skeletonViewer.DeleteUntrackedBodies(null);
+                    bodyViewer.DeleteUntrackedBodies(null);
                 }
             }
         }
