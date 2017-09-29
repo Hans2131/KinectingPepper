@@ -15,13 +15,15 @@ using System.Windows.Shapes;
 
 using Microsoft.Kinect;
 using Kinect_ing_Pepper.Enums;
+using Kinect_ing_Pepper.Business;
+using Kinect_ing_Pepper.Models;
 
 namespace Kinect_ing_Pepper.UI
 {
     /// <summary>
     /// Interaction logic for SkeletonView.xaml
     /// </summary>
-    public partial class SkeletonViewer : UserControl
+    public partial class BodyViewer : UserControl
     {
         private int _frameCounter = 0;
         private DateTime _lastFPSSample = DateTime.MinValue;
@@ -35,7 +37,7 @@ namespace Kinect_ing_Pepper.UI
         }
 
         public static readonly DependencyProperty ImageProperty =
-            DependencyProperty.Register("KinectImage", typeof(ImageSource), typeof(SkeletonViewer), new FrameworkPropertyMetadata(null));
+            DependencyProperty.Register("KinectImage", typeof(ImageSource), typeof(BodyViewer), new FrameworkPropertyMetadata(null));
 
         public string FPSDescription
         {
@@ -44,13 +46,13 @@ namespace Kinect_ing_Pepper.UI
         }
 
         public static readonly DependencyProperty StatusProperty =
-        DependencyProperty.Register("FPSDescription", typeof(string), typeof(SkeletonViewer), new FrameworkPropertyMetadata(null));
+        DependencyProperty.Register("FPSDescription", typeof(string), typeof(BodyViewer), new FrameworkPropertyMetadata(null));
 
         #endregion
 
         #region Constructor
 
-        public SkeletonViewer()
+        public BodyViewer()
         {
             InitializeComponent();
 
@@ -59,6 +61,7 @@ namespace Kinect_ing_Pepper.UI
             FPSDescription = "Not counted!";
             _lastFPSSample = DateTime.Now;
         }
+        #endregion
 
         public void UpdateFrameCounter()
         {
@@ -76,6 +79,36 @@ namespace Kinect_ing_Pepper.UI
             }
         }
 
-        #endregion
+        public void RenderBodies(IList<Body> bodies)
+        {
+
+        }
+
+        public void RenderBody(Body body, ECameraType cameraType)
+        {
+            BodyDrawing bodyDrawing = BodyHelper.Instance.BodyDrawings.Where(x => x.TrackingId == body.TrackingId).FirstOrDefault();
+
+            if (bodyDrawing == null)
+            {
+                bodyDrawing = new BodyDrawing(body, cameraType);
+                BodyHelper.Instance.BodyDrawings.Add(bodyDrawing);
+
+                List<Ellipse> ellipses = bodyDrawing.JointEllipses.Select(x => x.Value).ToList();
+                foreach (Ellipse ellipse in ellipses)
+                {
+                    canvasSkeleton.Children.Add(ellipse);
+                }
+
+                List<Line> lines = bodyDrawing.BoneLines.Select(x => x.Value).ToList();
+                foreach (Line line in lines)
+                {
+                    canvasSkeleton.Children.Add(line);
+                }
+            }
+            else
+            {
+                bodyDrawing.Update(body, cameraType);
+            }
+        }
     }
 }

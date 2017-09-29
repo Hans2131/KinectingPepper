@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Kinect_ing_Pepper.Enums
 {
-    public enum ECameraTypes
+    public enum ECameraType
     {
         Color = 1,
         Depth = 2,

@@ -23,28 +23,23 @@ namespace Kinect_ing_Pepper.UI
     /// <summary>
     /// Interaction logic for SkeletonViewer.xaml
     /// </summary>
-    public partial class SkeletonPage : Page
+    public partial class RecordPage : Page
     {
-        private KinectSensor _sensor;
         private MultiSourceFrameReader _reader;
 
-        private ECameraTypes _selectedCamera = ECameraTypes.Color;
+        private ECameraType _selectedCamera = ECameraType.Color;
 
-        public SkeletonPage()
+        public RecordPage()
         {
             InitializeComponent();
 
-            _sensor = KinectSensor.GetDefault();
-
-            if (_sensor != null)
+            if (KinectHelper.Instance.TryStartKinect())
             {
-                _sensor.Open();
-
-                _reader = _sensor.OpenMultiSourceFrameReader(FrameSourceTypes.Color | FrameSourceTypes.Depth | FrameSourceTypes.Infrared | FrameSourceTypes.Body);
+                _reader = KinectHelper.Instance.KinectSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Color | FrameSourceTypes.Depth | FrameSourceTypes.Infrared | FrameSourceTypes.Body);
                 _reader.MultiSourceFrameArrived += Reader_MultiSourceFrameArrived;
             }
 
-            cbxCameraType.ItemsSource = Enum.GetValues(typeof(ECameraTypes)).Cast<ECameraTypes>();
+            cbxCameraType.ItemsSource = Enum.GetValues(typeof(ECameraType)).Cast<ECameraType>();
             cbxCameraType.SelectedIndex = 0;
         }
 
@@ -55,7 +50,7 @@ namespace Kinect_ing_Pepper.UI
 
             switch (_selectedCamera)
             {
-                case ECameraTypes.Color:
+                case ECameraType.Color:
                     // Color
                     using (ColorFrame colorFrame = frame.ColorFrameReference.AcquireFrame())
                     {
@@ -66,7 +61,7 @@ namespace Kinect_ing_Pepper.UI
                         }
                     }
                     break;
-                case ECameraTypes.Depth:
+                case ECameraType.Depth:
                     // Depth
                     using (DepthFrame depthFrame = frame.DepthFrameReference.AcquireFrame())
                     {
@@ -77,7 +72,7 @@ namespace Kinect_ing_Pepper.UI
                         }
                     }
                     break;
-                case ECameraTypes.Infrared:
+                case ECameraType.Infrared:
                     using (InfraredFrame infraredFrame = frame.InfraredFrameReference.AcquireFrame())
                     {
                         if (infraredFrame != null)
@@ -90,18 +85,33 @@ namespace Kinect_ing_Pepper.UI
                 default:
                     break;
             }
+
+            using (BodyFrame bodyFrame = frame.BodyFrameReference.AcquireFrame())
+            {
+                if (bodyFrame != null)
+                {
+                    Body[] bodies = new Body[bodyFrame.BodyCount];
+                    bodyFrame.GetAndRefreshBodyData(bodies);
+
+                    //choose body?
+                    if (bodies.Any(x => x.IsTracked))
+                    {
+                        skeletonViewer.RenderBody(bodies.Where(x => x.IsTracked).FirstOrDefault(), _selectedCamera);
+                    }
+                }
+            }
         }
 
         private void Page_Unloaded(object sender, RoutedEventArgs e)
         {
             _reader.Dispose();
 
-            _sensor.Close();
+            KinectHelper.Instance.StopKinect();
         }
 
         private void cbxCameraType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Enum.TryParse<ECameraTypes>(cbxCameraType.SelectedValue.ToString(), out _selectedCamera);
+            Enum.TryParse<ECameraType>(cbxCameraType.SelectedValue.ToString(), out _selectedCamera);
         }
     }
 }
