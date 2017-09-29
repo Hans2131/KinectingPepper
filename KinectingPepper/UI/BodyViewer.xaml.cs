@@ -17,6 +17,7 @@ using Microsoft.Kinect;
 using Kinect_ing_Pepper.Enums;
 using Kinect_ing_Pepper.Business;
 using Kinect_ing_Pepper.Models;
+using System.Diagnostics;
 
 namespace Kinect_ing_Pepper.UI
 {
@@ -27,6 +28,7 @@ namespace Kinect_ing_Pepper.UI
     {
         private int _frameCounter = 0;
         private DateTime _lastFPSSample = DateTime.MinValue;
+        private bool _canvasCleared = false;
 
         #region Dependancy Properties
 
@@ -79,20 +81,52 @@ namespace Kinect_ing_Pepper.UI
             }
         }
 
-        public void RenderBodies(IList<Body> bodies)
+        public void RenderBodies(List<Body> trackedBodies, ECameraType cameraType)
         {
+            DeleteUntrackedBodies(trackedBodies);
 
+            foreach (Body body in trackedBodies)
+            {
+                RenderBody(body, cameraType);
+            }
         }
 
-        public void RenderBody(Body body, ECameraType cameraType)
+        private void DeleteUntrackedBodies(List<Body> trackedBodies)
+        {
+            int deletedCount = BodyHelper.Instance.BodyDrawings.RemoveAll(x => !trackedBodies.Any(tracked => tracked.TrackingId == x.TrackingId));
+
+            //List<BodyDrawing> untrackedBodies = BodyHelper.Instance.BodyDrawings.Where(x => !trackedBodies.Any(tracked => tracked.TrackingId == x.TrackingId)).ToList();
+
+            if (deletedCount > 0)
+            {
+                //foreach (BodyDrawing untrackedBody in untrackedBodies)
+                //{
+                //    BodyHelper.Instance.BodyDrawings.Remove(untrackedBody);
+                //}
+
+                canvasSkeleton.Children.Clear();
+                _canvasCleared = true;
+            }
+        }
+
+        private void RenderBody(Body body, ECameraType cameraType)
         {
             BodyDrawing bodyDrawing = BodyHelper.Instance.BodyDrawings.Where(x => x.TrackingId == body.TrackingId).FirstOrDefault();
+            bool isNewBody = false;
 
             if (bodyDrawing == null)
             {
                 bodyDrawing = new BodyDrawing(body, cameraType);
                 BodyHelper.Instance.BodyDrawings.Add(bodyDrawing);
+                isNewBody = true;
+            }
+            else
+            {
+                bodyDrawing.Update(body, cameraType);
+            }
 
+            if (_canvasCleared || isNewBody)
+            {
                 List<Ellipse> ellipses = bodyDrawing.JointEllipses.Select(x => x.Value).ToList();
                 foreach (Ellipse ellipse in ellipses)
                 {
@@ -104,10 +138,8 @@ namespace Kinect_ing_Pepper.UI
                 {
                     canvasSkeleton.Children.Add(line);
                 }
-            }
-            else
-            {
-                bodyDrawing.Update(body, cameraType);
+
+                _canvasCleared = false;
             }
         }
     }

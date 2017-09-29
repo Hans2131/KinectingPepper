@@ -93,10 +93,12 @@ namespace Kinect_ing_Pepper.UI
                     Body[] bodies = new Body[bodyFrame.BodyCount];
                     bodyFrame.GetAndRefreshBodyData(bodies);
 
+                    List<Body> trackedBodies = bodies.Where(x => x.IsTracked).ToList();
+
                     //choose body?
-                    if (bodies.Any(x => x.IsTracked))
+                    if (trackedBodies.Any())
                     {
-                        skeletonViewer.RenderBody(bodies.Where(x => x.IsTracked).FirstOrDefault(), _selectedCamera);
+                        skeletonViewer.RenderBodies(trackedBodies, _selectedCamera);
                     }
                 }
             }
