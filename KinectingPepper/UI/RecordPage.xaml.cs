@@ -23,28 +23,23 @@ namespace Kinect_ing_Pepper.UI
     /// <summary>
     /// Interaction logic for SkeletonViewer.xaml
     /// </summary>
-    public partial class SkeletonPage : Page
+    public partial class RecordPage : Page
     {
-        private KinectSensor _sensor;
         private MultiSourceFrameReader _reader;
 
-        private ECameraTypes _selectedCamera = ECameraTypes.Color;
+        private ECameraType _selectedCamera = ECameraType.Color;
 
-        public SkeletonPage()
+        public RecordPage()
         {
             InitializeComponent();
 
-            _sensor = KinectSensor.GetDefault();
-
-            if (_sensor != null)
+            if (KinectHelper.Instance.TryStartKinect())
             {
-                _sensor.Open();
-
-                _reader = _sensor.OpenMultiSourceFrameReader(FrameSourceTypes.Color | FrameSourceTypes.Depth | FrameSourceTypes.Infrared | FrameSourceTypes.Body);
+                _reader = KinectHelper.Instance.KinectSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Color | FrameSourceTypes.Depth | FrameSourceTypes.Infrared | FrameSourceTypes.Body);
                 _reader.MultiSourceFrameArrived += Reader_MultiSourceFrameArrived;
             }
 
-            cbxCameraType.ItemsSource = Enum.GetValues(typeof(ECameraTypes)).Cast<ECameraTypes>();
+            cbxCameraType.ItemsSource = Enum.GetValues(typeof(ECameraType)).Cast<ECameraType>();
             cbxCameraType.SelectedIndex = 0;
         }
 
@@ -55,40 +50,61 @@ namespace Kinect_ing_Pepper.UI
 
             switch (_selectedCamera)
             {
-                case ECameraTypes.Color:
+                case ECameraType.Color:
                     // Color
                     using (ColorFrame colorFrame = frame.ColorFrameReference.AcquireFrame())
                     {
                         if (colorFrame != null)
                         {
-                            skeletonViewer.UpdateFrameCounter();
-                            skeletonViewer.KinectImage = frameParser.ParseToBitmap(colorFrame);
+                            bodyViewer.UpdateFrameCounter();
+                            bodyViewer.KinectImage = frameParser.ParseToBitmap(colorFrame);
                         }
                     }
                     break;
-                case ECameraTypes.Depth:
+                case ECameraType.Depth:
                     // Depth
                     using (DepthFrame depthFrame = frame.DepthFrameReference.AcquireFrame())
                     {
                         if (depthFrame != null)
                         {
-                            skeletonViewer.UpdateFrameCounter();
-                            skeletonViewer.KinectImage = frameParser.ParseToBitmap(depthFrame);
+                            bodyViewer.UpdateFrameCounter();
+                            bodyViewer.KinectImage = frameParser.ParseToBitmap(depthFrame);
                         }
                     }
                     break;
-                case ECameraTypes.Infrared:
+                case ECameraType.Infrared:
                     using (InfraredFrame infraredFrame = frame.InfraredFrameReference.AcquireFrame())
                     {
                         if (infraredFrame != null)
                         {
-                            skeletonViewer.UpdateFrameCounter();
-                            skeletonViewer.KinectImage = frameParser.ParseToBitmap(infraredFrame);
+                            bodyViewer.UpdateFrameCounter();
+                            bodyViewer.KinectImage = frameParser.ParseToBitmap(infraredFrame);
                         }
                     }
                     break;
                 default:
                     break;
+            }
+
+            using (BodyFrame bodyFrame = frame.BodyFrameReference.AcquireFrame())
+            {
+                if (bodyFrame != null)
+                {
+                    Body[] bodies = new Body[bodyFrame.BodyCount];
+                    bodyFrame.GetAndRefreshBodyData(bodies);
+
+                    List<Body> trackedBodies = bodies.Where(x => x.IsTracked).ToList();
+
+                    //choose body?
+                    if (trackedBodies.Any())
+                    {
+                        bodyViewer.RenderBodies(trackedBodies, _selectedCamera);
+                    }
+                }
+                else
+                {
+                    bodyViewer.DeleteUntrackedBodies(null);
+                }
             }
         }
 
@@ -96,12 +112,12 @@ namespace Kinect_ing_Pepper.UI
         {
             _reader.Dispose();
 
-            _sensor.Close();
+            KinectHelper.Instance.StopKinect();
         }
 
         private void cbxCameraType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Enum.TryParse<ECameraTypes>(cbxCameraType.SelectedValue.ToString(), out _selectedCamera);
+            Enum.TryParse<ECameraType>(cbxCameraType.SelectedValue.ToString(), out _selectedCamera);
         }
     }
 }
