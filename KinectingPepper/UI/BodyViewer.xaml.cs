@@ -91,21 +91,23 @@ namespace Kinect_ing_Pepper.UI
             }
         }
 
-        private void DeleteUntrackedBodies(List<Body> trackedBodies)
+        public void DeleteUntrackedBodies(List<Body> trackedBodies)
         {
-            int deletedCount = BodyHelper.Instance.BodyDrawings.RemoveAll(x => !trackedBodies.Any(tracked => tracked.TrackingId == x.TrackingId));
-
-            //List<BodyDrawing> untrackedBodies = BodyHelper.Instance.BodyDrawings.Where(x => !trackedBodies.Any(tracked => tracked.TrackingId == x.TrackingId)).ToList();
-
-            if (deletedCount > 0)
+            if (trackedBodies == null)
             {
-                //foreach (BodyDrawing untrackedBody in untrackedBodies)
-                //{
-                //    BodyHelper.Instance.BodyDrawings.Remove(untrackedBody);
-                //}
-
+                BodyHelper.Instance.BodyDrawings.Clear();
                 canvasSkeleton.Children.Clear();
                 _canvasCleared = true;
+            }
+            else
+            {
+                int deletedCount = BodyHelper.Instance.BodyDrawings.RemoveAll(x => !trackedBodies.Any(tracked => tracked.TrackingId == x.TrackingId));
+
+                if (deletedCount > 0)
+                {
+                    canvasSkeleton.Children.Clear();
+                    _canvasCleared = true;
+                }
             }
         }
 

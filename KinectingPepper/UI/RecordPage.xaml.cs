@@ -101,6 +101,10 @@ namespace Kinect_ing_Pepper.UI
                         skeletonViewer.RenderBodies(trackedBodies, _selectedCamera);
                     }
                 }
+                else
+                {
+                    skeletonViewer.DeleteUntrackedBodies(null);
+                }
             }
         }
 
