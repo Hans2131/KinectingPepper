@@ -24,7 +24,7 @@ namespace Kinect_ing_Pepper.UI
         {
             InitializeComponent();
 
-            navigationFrame.Navigate(new RecordPage());
+            navigationFrame.Navigate(new RecordPage(navigationFrame));
         }
     }
 }

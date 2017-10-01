@@ -67,12 +67,19 @@
     <Compile Include="UI\BodyViewer.xaml.cs">
       <DependentUpon>BodyViewer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\RewindPage.xaml.cs">
+      <DependentUpon>RewindPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\RecordPage.xaml.cs">
       <DependentUpon>RecordPage.xaml</DependentUpon>
     </Compile>
     <Page Include="UI\BodyViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\RewindPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="UI\RecordPage.xaml">
       <SubType>Designer</SubType>

@@ -23,14 +23,14 @@ namespace Kinect_ing_Pepper.UI
     /// <summary>
     /// Interaction logic for SkeletonViewer.xaml
     /// </summary>
-    public partial class RecordPage : Page
+    public partial class RewindPage : Page
     {
         private MultiSourceFrameReader _reader;
 
         private ECameraType _selectedCamera = ECameraType.Color;
         private readonly Frame navigationFrame;
 
-        public RecordPage(Frame navigationFrame)
+        public RewindPage(Frame navigationFrame)
         {
             InitializeComponent();
             this.navigationFrame = navigationFrame;
@@ -40,9 +40,6 @@ namespace Kinect_ing_Pepper.UI
                 _reader = KinectHelper.Instance.KinectSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Color | FrameSourceTypes.Depth | FrameSourceTypes.Infrared | FrameSourceTypes.Body);
                 _reader.MultiSourceFrameArrived += Reader_MultiSourceFrameArrived;
             }
-
-            cbxCameraType.ItemsSource = Enum.GetValues(typeof(ECameraType)).Cast<ECameraType>();
-            cbxCameraType.SelectedIndex = 0;
         }
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
@@ -122,19 +119,22 @@ namespace Kinect_ing_Pepper.UI
             Enum.TryParse<ECameraType>(cbxCameraType.SelectedValue.ToString(), out _selectedCamera);
         }
 
-        private void startRecordingButton_Click(object sender, RoutedEventArgs e)
+        private void selectFile_Click(object sender, RoutedEventArgs e)
         {
-
+            
         }
-
-        private void stopRecordingButton_Click(object sender, RoutedEventArgs e)
+        private void resetPlayer_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+        private void pausePlayer_Click(object sender, RoutedEventArgs e)
         {
             
         }
 
-        private void navigateToRewindPage_Click(object sender, RoutedEventArgs e)
+        private void navigateToRecordPage_Click(object sender, RoutedEventArgs e)
         {
-            navigationFrame.Navigate(new RewindPage(navigationFrame));
+            navigationFrame.Navigate(new RecordPage(navigationFrame));
         }
     }
 }
