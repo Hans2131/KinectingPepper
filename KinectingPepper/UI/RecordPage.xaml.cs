@@ -119,5 +119,15 @@ namespace Kinect_ing_Pepper.UI
         {
             Enum.TryParse<ECameraType>(cbxCameraType.SelectedValue.ToString(), out _selectedCamera);
         }
+
+        private void startRecordingButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void stopRecordingButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
