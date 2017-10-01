@@ -24,8 +24,8 @@
             </Grid.ColumnDefinitions>
             <Label  Grid.Column="0" Margin="20 10 0 0" HorizontalAlignment="Left" VerticalAlignment="Top">Select camera type:</Label>
             <ComboBox Grid.Column="1" Name="cbxCameraType" Margin="20 15 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="cbxCameraType_SelectionChanged"></ComboBox>
-            <Button Grid.Column="2" Name="startButton" Margin="10 0 10 0" Click="startButton_Click" HorizontalAlignment="Stretch">Start</Button>
-            <Button Grid.Column="3" Name="stopButton" Margin="10 0 10 0" Click="stopButton_Click"  HorizontalAlignment="Stretch">Stop</Button>
+            <Button Grid.Column="2" Name="btnStartRecording" Margin="10 0 10 0" Click="startRecordingButton_Click" HorizontalAlignment="Stretch">Start</Button>
+            <Button Grid.Column="3" Name="btnStopRecording" Margin="10 0 10 0" Click="stopRecordingButton_Click"  HorizontalAlignment="Stretch">Stop</Button>
             <Label Grid.Column="4" Name="placeholder2"></Label>
         </Grid>
     </Grid>
