@@ -24,10 +24,8 @@ namespace Kinect_ing_Pepper.UI
     {
         unsafe public MainWindow()
         {
-            InitializeComponent();
-            System.DateTime z = System.DateTime.Now;
-            MediaSink.Tester.Test();
-            System.DateTime z2 = System.DateTime.Now;
+            InitializeComponent();            
+            MediaSink.Tester.Test2();            
             navigationFrame.Navigate(new RecordPage());
         }
     }
