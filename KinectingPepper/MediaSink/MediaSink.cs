@@ -7,10 +7,10 @@ using Microsoft.Kinect;
 namespace Kinect_ing_Pepper.MediaSink
 {
     public unsafe class General
-    {
-        //0 = depth || 1 = RGB        
-        public static bool RGBToBuf(ref ColorFrame frame)
+    {        
+        public static bool RGBToBuf(ColorFrame frame)
         {
+            if (frame == null || MediaSink.RGBMediaSink.processing == false) return true;
             byte[] b = new byte[1080 * 1920 * 4];
             if (frame != null)
             {
@@ -32,7 +32,7 @@ namespace Kinect_ing_Pepper.MediaSink
             return MediaSink.DepthMediaSink.ProcesData(ref buf);
         }
 
-        public static bool DepthToBuf(ref DepthFrame frame)
+        public static bool DepthToBuf(DepthFrame frame)
         {
             if (frame == null) return true;
             if (!MediaSink.DepthMediaSink.processing) return true;
@@ -41,8 +41,7 @@ namespace Kinect_ing_Pepper.MediaSink
             fixed (UInt32* p = &b[0])
                 Pb = new IntPtr(p); 
             frame.CopyFrameDataToIntPtr(Pb,1080*1920);
-            return MediaSink.DepthMediaSink.ProcesData(ref b);
-           
+            return MediaSink.DepthMediaSink.ProcesData(ref b);           
         }
     }
 

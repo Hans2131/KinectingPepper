@@ -55,7 +55,8 @@ namespace Kinect_ing_Pepper.UI
                     using (ColorFrame colorFrame = frame.ColorFrameReference.AcquireFrame())
                     {
                         if (colorFrame != null)
-                        {
+                        {                         
+                            MediaSink.General.RGBToBuf(colorFrame);
                             bodyViewer.UpdateFrameCounter();
                             bodyViewer.KinectImage = frameParser.ParseToBitmap(colorFrame);
                         }
@@ -66,7 +67,8 @@ namespace Kinect_ing_Pepper.UI
                     using (DepthFrame depthFrame = frame.DepthFrameReference.AcquireFrame())
                     {
                         if (depthFrame != null)
-                        {
+                        {                            
+                            MediaSink.General.DepthToBuf(depthFrame);
                             bodyViewer.UpdateFrameCounter();
                             bodyViewer.KinectImage = frameParser.ParseToBitmap(depthFrame);
                         }
@@ -110,6 +112,8 @@ namespace Kinect_ing_Pepper.UI
 
         private void Page_Unloaded(object sender, RoutedEventArgs e)
         {
+            MediaSink.RGBMediaSink.Stop();
+            MediaSink.DepthMediaSink.Stop();
             _reader.Dispose();
 
             KinectHelper.Instance.StopKinect();
