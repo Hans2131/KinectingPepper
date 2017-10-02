@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using Kinect_ing_Pepper.MediaSink;
+
 namespace Kinect_ing_Pepper.UI
 {
     /// <summary>
@@ -20,10 +22,11 @@ namespace Kinect_ing_Pepper.UI
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        unsafe public MainWindow()
         {
             InitializeComponent();
-
+            MediaSink.DepthMediaSink.Start();
+            MediaSink.RGBMediaSink.Start();
             navigationFrame.Navigate(new RecordPage());
         }
     }
