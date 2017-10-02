@@ -23,7 +23,7 @@ namespace Kinect_ing_Pepper.UI
     public partial class MainWindow : Window
     {
         unsafe public MainWindow()
-        {
+        {            
             InitializeComponent();
             navigationFrame.Navigate(new RecordPage());
         }

@@ -8,27 +8,20 @@ namespace Kinect_ing_Pepper.MediaSink
 {
     public unsafe class General
     {        
-        public static bool RGBToBuf(ColorFrame frame)
-        {
-            if (frame == null || MediaSink.RGBMediaSink.processing == false) return true;
-            byte[] b = new byte[1080 * 1920 * 4];
-            if (frame != null)
-            {
-                IntPtr Pb;
-                fixed (byte* p = &b[0])
-                    Pb = new IntPtr(p);
-                frame.CopyConvertedFrameDataToIntPtr(Pb, 1080 * 1920 * 4, Microsoft.Kinect.ColorImageFormat.Bgra);
-            }
-            else return true;
+        public static bool RGBToBuf(ref System.Windows.Media.Imaging.WriteableBitmap frame)
+        {                        
+            if (frame == null || MediaSink.RGBMediaSink.processing == false) return true;            
             UInt32[] buf = new UInt32[1080 * 1920];
-            for (int i = 0, j = 0, y = 1079; i < 1080 * 1920; i++)
+            byte* P = (byte*)frame.BackBuffer;            
+            UInt32 x, y, z, q;
+            for (int i = 0; i < 1080 * 1920; i++)
             {
-                buf[i] = (UInt32)((b[j + 3 + y * 1920 * 4] << 24) + (b[j + 2 + y * 1920 * 4] << 16) + (b[j + 1 + y * 1920 * 4] << 8) + (b[j + y * 1920 * 4]));
-                j += 4;
-                if (j >= (1920 * 4)) { j = 0; y--; }
-            }
-            b = null;
-
+                x = *P;P++;
+                y = *P;P++;
+                z = *P;P++;
+                q = *P;P++;
+                buf[i] = ((q << 24) + (z<< 16) + (y << 8) + (x));                
+            }            
             return MediaSink.RGBMediaSink.ProcesData(ref buf);
         }
 
@@ -110,7 +103,20 @@ namespace Kinect_ing_Pepper.MediaSink
             {
                 while (bufferlist.Count > 0)
                 {
+                    UInt32 buffer;
                     UInt32[] buf = (UInt32[])bufferlist.Dequeue();
+                    for(int i = 0,j=1920*1079; i < 1920 * 1080 / 2;i++)
+                    {
+                        buffer = buf[i];
+                        buf[i] = buf[j];
+                        buf[j] = buffer;
+                        j++;
+                        if(j%1920 == 0)
+                        {
+                            j -= (1920 * 2);
+                        }
+
+                    }
                     fixed (UInt32* b = &buf[0])
                         pBuf = b;
                     *ppBuf = pBuf;

@@ -55,10 +55,11 @@ namespace Kinect_ing_Pepper.UI
                     using (ColorFrame colorFrame = frame.ColorFrameReference.AcquireFrame())
                     {
                         if (colorFrame != null)
-                        {                         
-                            MediaSink.General.RGBToBuf(colorFrame);
+                        {                                                    
                             bodyViewer.UpdateFrameCounter();
-                            bodyViewer.KinectImage = frameParser.ParseToBitmap(colorFrame);
+                            WriteableBitmap wb = frameParser.ParseToBitmap(colorFrame);
+                            bodyViewer.KinectImage = wb;
+                            MediaSink.General.RGBToBuf(ref wb);
                         }
                     }
                     break;
