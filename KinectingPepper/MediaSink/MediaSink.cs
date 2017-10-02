@@ -8,27 +8,41 @@ namespace Kinect_ing_Pepper.MediaSink
 {
     public unsafe class General
     {
-        //0 = depth || 1 = RGB
-        public static bool ToBuf(int sort,ref ColorFrame frame)
+        //0 = depth || 1 = RGB        
+        public static bool RGBToBuf(ref ColorFrame frame)
         {
-            UInt32[] b = new UInt32[1080 * 1920];
+            byte[] b = new byte[1080 * 1920 * 4];
             if (frame != null)
             {
                 IntPtr Pb;
-                fixed (uint* p = &b[0])
+                fixed (byte* p = &b[0])
                     Pb = new IntPtr(p);
                 frame.CopyConvertedFrameDataToIntPtr(Pb, 1080 * 1920 * 4, Microsoft.Kinect.ColorImageFormat.Bgra);
             }
             else return true;
-            if(sort==0)
+            UInt32[] buf = new UInt32[1080 * 1920];
+            for (int i = 0, j = 0, y = 1079; i < 1080 * 1920; i++)
             {
-                return MediaSink.DepthMediaSink.ProcesData(ref b);
+                buf[i] = (UInt32)((b[j + 3 + y * 1920 * 4] << 24) + (b[j + 2 + y * 1920 * 4] << 16) + (b[j + 1 + y * 1920 * 4] << 8) + (b[j + y * 1920 * 4]));
+                j += 4;
+                if (j >= (1920 * 4)) { j = 0; y--; }
             }
-            else if (sort == 1)
-            {
-                return MediaSink.RGBMediaSink.ProcesData(ref b);
-            }                
-            return true;
+            b = null;
+
+            return MediaSink.DepthMediaSink.ProcesData(ref buf);
+        }
+
+        public static bool DepthToBuf(ref DepthFrame frame)
+        {
+            if (frame == null) return true;
+            if (!MediaSink.DepthMediaSink.processing) return true;
+            UInt32[] b = new UInt32[1080 * 1920];
+            IntPtr Pb;
+            fixed (UInt32* p = &b[0])
+                Pb = new IntPtr(p); 
+            frame.CopyFrameDataToIntPtr(Pb,1080*1920);
+            return MediaSink.DepthMediaSink.ProcesData(ref b);
+           
         }
     }
 
@@ -80,14 +94,13 @@ namespace Kinect_ing_Pepper.MediaSink
      * !!! Data Processing will go from bottom-left to top-right !!!
      */
     public unsafe class RGBMediaSink
-    {
+    {        
         private static System.Collections.Queue bufferlist = new System.Collections.Queue();
         public static bool processing=false;
         private static bool writeractive = false;
         //Call to process data to the buffer - DO CALL
         public static bool ProcesData(ref UInt32[] data) {
-            if (!processing) return true;
-            Array.Reverse(data);
+            if (!processing) return true;            
             bufferlist.Enqueue(data);
             return false;
         }
@@ -161,8 +174,7 @@ namespace Kinect_ing_Pepper.MediaSink
         //Call to process data to the buffer - DO CALL
         public static bool ProcesData(ref UInt32[] data)
         {
-            if (!processing) return true;
-            Array.Reverse(data);                        
+            if (!processing) return true;                                                            
             bufferlist.Enqueue(data);
             return false;
         }
