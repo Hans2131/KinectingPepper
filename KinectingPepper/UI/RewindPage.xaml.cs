@@ -134,7 +134,7 @@ namespace Kinect_ing_Pepper.UI
 
         private void navigateToRecordPage_Click(object sender, RoutedEventArgs e)
         {
-            navigationFrame.Navigate(new RecordPage(navigationFrame));
+            navigationFrame.NavigationService.GoBack();
         }
     }
 }

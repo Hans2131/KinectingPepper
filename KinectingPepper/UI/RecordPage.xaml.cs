@@ -28,11 +28,13 @@ namespace Kinect_ing_Pepper.UI
         private MultiSourceFrameReader _reader;
 
         private ECameraType _selectedCamera = ECameraType.Color;
+        private readonly RewindPage rewindPage;
         private readonly Frame navigationFrame;
 
         public RecordPage(Frame navigationFrame)
         {
             InitializeComponent();
+            this.rewindPage = new RewindPage(navigationFrame);
             this.navigationFrame = navigationFrame;
 
             if (KinectHelper.Instance.TryStartKinect())
@@ -134,7 +136,7 @@ namespace Kinect_ing_Pepper.UI
 
         private void navigateToRewindPage_Click(object sender, RoutedEventArgs e)
         {
-            navigationFrame.Navigate(new RewindPage(navigationFrame));
+            navigationFrame.Navigate(rewindPage);
         }
     }
 }
