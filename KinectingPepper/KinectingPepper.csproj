@@ -41,6 +41,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -60,10 +61,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Business\FrameParser.cs" />
+    <Compile Include="Business\PersistFrames.cs" />
     <Compile Include="Business\KinectHelper.cs" />
     <Compile Include="Business\BodyHelper.cs" />
     <Compile Include="Enums\ECameraTypes.cs" />
     <Compile Include="Models\BodyDrawing.cs" />
+    <Compile Include="Models\BodyFrameWrapper.cs" />
+    <Compile Include="Models\JointWrapper.cs" />
+    <Compile Include="Models\BodyWrapper.cs" />
     <Compile Include="UI\BodyViewer.xaml.cs">
       <DependentUpon>BodyViewer.xaml</DependentUpon>
     </Compile>
@@ -119,6 +124,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Extensions\" />
+    <Folder Include="Serialization\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

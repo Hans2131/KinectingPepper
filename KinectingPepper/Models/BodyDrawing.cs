@@ -28,7 +28,7 @@ namespace Kinect_ing_Pepper.Models
 
         public Dictionary<Tuple<JointType, JointType>, Line> BoneLines { get; set; }
 
-        public BodyDrawing(Body body, ECameraType cameraType)
+        public BodyDrawing(BodyWrapper body, ECameraType cameraType)
         {
             TrackingId = body.TrackingId;
 
@@ -36,7 +36,7 @@ namespace Kinect_ing_Pepper.Models
             JointEllipses = new Dictionary<JointType, Ellipse>();
             BoneLines = new Dictionary<Tuple<JointType, JointType>, Line>();
 
-            foreach (KeyValuePair<JointType, Joint> joint in body.Joints)
+            foreach (KeyValuePair<JointType, JointWrapper> joint in body.Joints)
             {
                 Point point = BodyHelper.Instance.MapCameraToSpace(joint.Value.Position, cameraType);
                 JointPoints.Add(joint.Key, point);
@@ -72,9 +72,9 @@ namespace Kinect_ing_Pepper.Models
             }
         }
 
-        public void Update(Body body, ECameraType cameraType)
+        public void Update(BodyWrapper body, ECameraType cameraType)
         {
-            foreach (KeyValuePair<JointType, Joint> joint in body.Joints)
+            foreach (KeyValuePair<JointType, JointWrapper> joint in body.Joints)
             {
                 JointPoints[joint.Key] = BodyHelper.Instance.MapCameraToSpace(joint.Value.Position, cameraType);
 
@@ -90,7 +90,7 @@ namespace Kinect_ing_Pepper.Models
                 line.X1 = JointPoints[bone.Item1].X;
                 line.Y1 = JointPoints[bone.Item1].Y;
                 line.X2 = JointPoints[bone.Item2].X;
-                line.Y2 = JointPoints[bone.Item2].Y;                
+                line.Y2 = JointPoints[bone.Item2].Y;
             }
         }
     }
