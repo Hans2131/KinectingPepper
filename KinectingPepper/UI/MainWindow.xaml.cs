@@ -25,8 +25,6 @@ namespace Kinect_ing_Pepper.UI
         unsafe public MainWindow()
         {
             InitializeComponent();
-            MediaSink.DepthMediaSink.Start();
-            MediaSink.RGBMediaSink.Start();
             navigationFrame.Navigate(new RecordPage());
         }
     }

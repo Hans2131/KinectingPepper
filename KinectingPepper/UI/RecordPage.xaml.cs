@@ -112,8 +112,6 @@ namespace Kinect_ing_Pepper.UI
 
         private void Page_Unloaded(object sender, RoutedEventArgs e)
         {
-            MediaSink.RGBMediaSink.Stop();
-            MediaSink.DepthMediaSink.Stop();
             _reader.Dispose();
 
             KinectHelper.Instance.StopKinect();
@@ -126,12 +124,14 @@ namespace Kinect_ing_Pepper.UI
 
         private void startRecordingButton_Click(object sender, RoutedEventArgs e)
         {
-
+            MediaSink.DepthMediaSink.Start();
+            MediaSink.RGBMediaSink.Start();                        
         }
 
         private void stopRecordingButton_Click(object sender, RoutedEventArgs e)
         {
-
+            MediaSink.RGBMediaSink.Stop();
+            MediaSink.DepthMediaSink.Stop();
         }
     }
 }

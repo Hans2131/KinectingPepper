@@ -29,7 +29,7 @@ namespace Kinect_ing_Pepper.MediaSink
             }
             b = null;
 
-            return MediaSink.DepthMediaSink.ProcesData(ref buf);
+            return MediaSink.RGBMediaSink.ProcesData(ref buf);
         }
 
         public static bool DepthToBuf(DepthFrame frame)
@@ -37,10 +37,7 @@ namespace Kinect_ing_Pepper.MediaSink
             if (frame == null) return true;
             if (!MediaSink.DepthMediaSink.processing) return true;
             UInt32[] b = new UInt32[1080 * 1920];
-            IntPtr Pb;
-            fixed (UInt32* p = &b[0])
-                Pb = new IntPtr(p); 
-            frame.CopyFrameDataToIntPtr(Pb,1080*1920);
+            frame.CopyFrameDataToArray((UInt16[])(object)b);
             return MediaSink.DepthMediaSink.ProcesData(ref b);           
         }
     }
