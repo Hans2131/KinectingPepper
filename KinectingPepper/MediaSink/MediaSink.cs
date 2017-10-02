@@ -2,94 +2,78 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Microsoft.Kinect;
 
 namespace Kinect_ing_Pepper.MediaSink
 {
+    public unsafe class General
+    {
+        //0 = depth || 1 = RGB
+        public static bool ToBuf(int sort,ref ColorFrame frame)
+        {
+            UInt32[] b = new UInt32[1080 * 1920];
+            if (frame != null)
+            {
+                IntPtr Pb;
+                fixed (uint* p = &b[0])
+                    Pb = new IntPtr(p);
+                frame.CopyConvertedFrameDataToIntPtr(Pb, 1080 * 1920 * 4, Microsoft.Kinect.ColorImageFormat.Bgra);
+            }
+            else return true;
+            if(sort==0)
+            {
+                return MediaSink.DepthMediaSink.ProcesData(ref b);
+            }
+            else if (sort == 1)
+            {
+                return MediaSink.RGBMediaSink.ProcesData(ref b);
+            }                
+            return true;
+        }
+    }
+
     //test the time to process 1 minute of data
     public unsafe class Tester
-    {            
-        static System.Collections.Queue bufferlist = new System.Collections.Queue();
-        static System.Collections.Queue bufferlist2=new System.Collections.Queue();
-        static bool done = false;
-        static bool wait = false;
+    {        
         public unsafe static void Test2()
-        {                                  
-            System.Threading.Thread thread = new System.Threading.Thread(Test2b);
-            
+        {
+            MediaSink.DepthMediaSink.Start();
+            MediaSink.RGBMediaSink.Start();
+
+
             System.Diagnostics.Stopwatch stamp = System.Diagnostics.Stopwatch.StartNew();
-            thread.Start();
-            int frames = 0;            
-            while (!wait) ;
+            int frames = 0;
             System.Diagnostics.Stopwatch z = System.Diagnostics.Stopwatch.StartNew();
             z.Start();
             System.Diagnostics.Stopwatch z2 = System.Diagnostics.Stopwatch.StartNew();
             z2.Start();
-            while (frames < 20*60*1)
+            UInt32[] Buf = new UInt32[1920 * 1080 + 1];
+            UInt32[] Buf2 = new UInt32[1920 * 1080 + 1];
+            for (int i = 0; i < 1920 * 1080; i++)
             {
-                
+                Buf[i] = 0x00FF0000;
+                Buf2[i] = 0x000FF000;
+            }
+            while (frames < 20 * 60 * 1)
+            {
                 stamp.Reset();
                 stamp.Start();
-                UInt32[] Buf = new UInt32[1920 * 1080 + 1];
-                UInt32[] Buf2 = new UInt32[1920 * 1080 + 1];                
+                MediaSink.RGBMediaSink.ProcesData(ref Buf);
+                MediaSink.DepthMediaSink.ProcesData(ref Buf2);
+                //Buf = null; Buf2 = null;             
+                frames++;
+                while (stamp.ElapsedMilliseconds < (48)) ;
 
-                Buf[1920*1080] = 0;
-                Buf2[1920*1080] = 0;
-                bufferlist.Enqueue(Buf2);
-                bufferlist2.Enqueue(Buf);
-                frames++;                
-                while (stamp.ElapsedMilliseconds<(48)) ;
-
-            }            
-            wait = false;
+            }
             z2.Stop();
-            while (!wait) ;            
-            done = true;
-            thread.Join();
+            MediaSink.DepthMediaSink.Stop();
+            MediaSink.RGBMediaSink.Stop();
             z.Stop();
             Console.WriteLine("1 minute of footage processed in: {0:N} || {1:N} seconds total.", z2.ElapsedMilliseconds, z.ElapsedMilliseconds);
             return;
         }
-        public unsafe static void Test2b()
-        {
-            MediaSink.DepthMediaSink.Init();
-            MediaSink.RGBMediaSink.Init();
-            UInt32** ppBuf = MediaSink.DepthMediaSink.GetBuffer();
-            UInt32** ppBuf2 = MediaSink.RGBMediaSink.GetBuffer();
-            UInt32* pBuf;
-            while (!done)
-            {
-                if (bufferlist2.Count > 0)
-                {
-                    UInt32[] x = (UInt32[])bufferlist2.Dequeue();                    
-                    fixed (UInt32* b = &x[0])
-                        pBuf = b;
-                    if (pBuf != null)
-                    {
-                        *ppBuf = pBuf;
-                        MediaSink.DepthMediaSink.WriteFrame();                        
-                        x = null;                        
-                    }
-                    UInt32[] y = (UInt32[])bufferlist.Dequeue();
-                    fixed (UInt32* b = &y[0])
-                        pBuf = b;
-                    if (pBuf != null)
-                    {
-                        *ppBuf2 = pBuf;
-                        MediaSink.RGBMediaSink.WriteFrame();
-                        y = null;
-                    }
-                }
-                else
-                {
-                    wait = true;
-                }
-                
-            }
-            MediaSink.DepthMediaSink.ShutDown();
-            MediaSink.RGBMediaSink.ShutDown();
-        }
     }
-
+    
      /*class implemented for saving data to mp4 file
      * Current Directory for savefile is C:\images\Pepper\[RGB/Depth]Out.mp4
      * Input is RGB32 as X8 R8 G8 B8
@@ -97,9 +81,63 @@ namespace Kinect_ing_Pepper.MediaSink
      */
     public unsafe class RGBMediaSink
     {
+        private static System.Collections.Queue bufferlist = new System.Collections.Queue();
+        public static bool processing=false;
+        private static bool writeractive = false;
+        //Call to process data to the buffer - DO CALL
+        public static bool ProcesData(ref UInt32[] data) {
+            if (!processing) return true;
+            Array.Reverse(data);
+            bufferlist.Enqueue(data);
+            return false;
+        }
+        //thread to write data to file - DONT CALL
+        private static void Writer()
+        {
+            writeractive = true;
+            UInt32** ppBuf = MediaSink.RGBMediaSink.GetBuffer();
+            UInt32* pBuf; 
+            while (processing)
+            {
+                while (bufferlist.Count > 0)
+                {
+                    UInt32[] buf = (UInt32[])bufferlist.Dequeue();
+                    fixed (UInt32* b = &buf[0])
+                        pBuf = b;
+                    *ppBuf = pBuf;
+                    MediaSink.RGBMediaSink.WriteFrame();
+                    buf = null;
+                }
+            }
+            writeractive = false;
+            pBuf = null;
+            ppBuf = null;
+            
+        }
+        //call to start the writer | call before processdata
+        public static void Start()
+        {
+            if (processing) return;            
+            processing = true;
+            init();
+            System.Threading.Thread t = new System.Threading.Thread(Writer);
+            t.Start();
+        }
+        //call to stop the writer | proper saving of files after both depth+rgb are stopped - DO CALL
+        public static void Stop()
+        {
+            if (!processing) return;
+            processing = false;
+            while (writeractive) ;
+            if (MediaSink.DepthMediaSink.processing)
+                return;
+            ShutDown();
+            MediaSink.DepthMediaSink.ShutDown();
+        }
+
         //Call to start the SinkWriter
         [DllImport("RGB_SinkWriter_CLI.dll", EntryPoint = "Init")]
-        public static extern void Init();
+        private static extern void init();
         //Call to finish and close SinkWriter
         [DllImport("RGB_SinkWriter_CLI.dll", EntryPoint = "Shutdown")]
         public static extern void ShutDown();
@@ -117,19 +155,74 @@ namespace Kinect_ing_Pepper.MediaSink
          
     public unsafe class DepthMediaSink
     {
-        //Call to start the SinkWriter
+        private static System.Collections.Queue bufferlist = new System.Collections.Queue();
+        public static bool processing = false;
+        private static bool writeractive = false;
+        //Call to process data to the buffer - DO CALL
+        public static bool ProcesData(ref UInt32[] data)
+        {
+            if (!processing) return true;
+            Array.Reverse(data);                        
+            bufferlist.Enqueue(data);
+            return false;
+        }
+        //thread to write data to file - DONT CALL
+        private static void Writer()
+        {
+            writeractive = true;
+            UInt32** ppBuf = MediaSink.DepthMediaSink.GetBuffer();
+            UInt32* pBuf;
+            while (processing)
+            {
+                while (bufferlist.Count > 0)
+                {
+                    UInt32[] buf = (UInt32[])bufferlist.Dequeue();
+                    fixed (UInt32* b = &buf[0])
+                        pBuf = b;
+                    *ppBuf = pBuf;
+                    MediaSink.DepthMediaSink.WriteFrame();
+                    buf = null;
+                }
+            }
+            writeractive = false;
+            pBuf = null;
+            ppBuf = null;
+
+        }
+        //call to start the writer | call before processdata - DO CALL
+        public static void Start()
+        {
+            if (processing) return;
+            processing = true;
+            init();
+            System.Threading.Thread t = new System.Threading.Thread(Writer);
+            t.Start();
+        }
+        //call to stop the writer | proper saving of files after both depth+rgb are stopped  - DO CALL
+        public static void Stop()
+        {
+            if (!processing) return;
+            processing = false;
+            while (writeractive) ;
+            if (MediaSink.RGBMediaSink.processing)
+                return;
+            ShutDown();
+            MediaSink.RGBMediaSink.ShutDown();
+        }
+
+        //Call to start the SinkWriter - DONT CALL
         [DllImport("Depth_SinkWriter_CLI.dll", EntryPoint = "Init")]
-        public static extern void Init();
-        //Call to finish and close SinkWriter
+        private static extern void init();
+        //Call to finish and close SinkWriter - DONT CALL
         [DllImport("Depth_SinkWriter_CLI.dll", EntryPoint = "Shutdown")]
         public static extern void ShutDown();
-        //returns true if SinkWriter is active
+        //returns true if SinkWriter is active - DONT CALL
         [DllImport("Depth_SinkWriter_CLI.dll", EntryPoint = "IsActive")]
         public static extern bool IsActive();
-        //returns location of the FrameBuffer    
+        //returns location of the FrameBuffer - DONT CALL
         [DllImport("Depth_SinkWriter_CLI.dll", EntryPoint = "GetBuffer")]
         public static extern UInt32** GetBuffer();
-        //Call to process the FrameBuffer, returns 0 on succes
+        //Call to process the FrameBuffer, returns 0 on succes - DONT CALL
         [DllImport("Depth_SinkWriter_CLI.dll", EntryPoint = "WriteFrame")]
         public static extern int WriteFrame();
     }
