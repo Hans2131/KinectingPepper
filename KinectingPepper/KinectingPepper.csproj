@@ -65,18 +65,21 @@
     </ApplicationDefinition>
     <Compile Include="Business\CSV_saver.cs" />
     <Compile Include="Business\FrameParser.cs" />
+    <Compile Include="Business\KinectHelper.cs" />
+    <Compile Include="Business\BodyHelper.cs" />
     <Compile Include="Enums\ECameraTypes.cs" />
-    <Compile Include="UI\SkeletonViewer.xaml.cs">
-      <DependentUpon>SkeletonViewer.xaml</DependentUpon>
+    <Compile Include="Models\BodyDrawing.cs" />
+    <Compile Include="UI\BodyViewer.xaml.cs">
+      <DependentUpon>BodyViewer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\SkeletonPage.xaml.cs">
-      <DependentUpon>SkeletonPage.xaml</DependentUpon>
+    <Compile Include="UI\RecordPage.xaml.cs">
+      <DependentUpon>RecordPage.xaml</DependentUpon>
     </Compile>
-    <Page Include="UI\SkeletonViewer.xaml">
+    <Page Include="UI\BodyViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\SkeletonPage.xaml">
+    <Page Include="UI\RecordPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -121,7 +124,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Data\" />
     <Folder Include="Extensions\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
