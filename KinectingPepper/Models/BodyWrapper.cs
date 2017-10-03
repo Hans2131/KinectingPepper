@@ -10,6 +10,7 @@ using System.Numerics;
 
 namespace Kinect_ing_Pepper.Models
 {
+    [Serializable()]
     public class BodyWrapper
     {
 
@@ -17,19 +18,47 @@ namespace Kinect_ing_Pepper.Models
         public bool IsTracked;
         public ulong TrackingId;
 
-        public Dictionary<JointType, JointWrapper> Joints;
+        private List<JointWrapper> _joints;
+        //XML serializer can't serialize Dictionary, this property returns the dictionary as list
+        public List<JointWrapper> Joints
+        {
+            get
+            {
+                return _joints;
+            }
+            set
+            {
+                _joints = value;
+            }
+        }
+
+        private Dictionary<JointType, JointWrapper> _jointsDictionary;
+
+        [XmlIgnore]
+        public Dictionary<JointType, JointWrapper> JointsDictionary
+        {
+            get
+            {
+                if (_joints != null && _joints.Any() && _jointsDictionary == null)
+                {
+                    _jointsDictionary = _joints.ToDictionary(x => x.JointType);
+                }
+
+                return _jointsDictionary;
+            }
+        }
 
         public Point Lean;
-        public TrackingState LeanTrackingState { get; }
+        public TrackingState LeanTrackingState;
 
-        public HandState HandRightState { get; }
-        public TrackingConfidence HandLeftConfidence { get; }
-        public HandState HandLeftState { get; }
-        public TrackingConfidence HandRightConfidence { get; }
+        public HandState HandRightState;
+        public TrackingConfidence HandLeftConfidence;
+        public HandState HandLeftState;
+        public TrackingConfidence HandRightConfidence;
 
         //include these?
-        //public FrameEdges ClippedEdges { get; }
-        //public IReadOnlyDictionary<Expression, DetectionResult> Expressions { get; }
+        //public FrameEdges ClippedEdges;
+        //public IReadOnlyDictionary<Expression, DetectionResult> Expressions;
 
         //Don't remove empty constructor, neccesary for serialization
         public BodyWrapper() { }
@@ -40,9 +69,11 @@ namespace Kinect_ing_Pepper.Models
             IsRestricted = body.IsRestricted;
             IsTracked = body.IsTracked;
             TrackingId = body.TrackingId;
-            Joints = body.Joints.Select(x => new JointWrapper(x.Value)).ToDictionary(x => x.JointType);
 
-            Joints.ToList().ForEach(x => x.Value.Orientation = ToVector4(body.JointOrientations[x.Key]));
+            Joints = body.Joints.Select(x => new JointWrapper(x.Value)).ToList();
+            Joints.ForEach(x => x.Orientation = ToVector4(body.JointOrientations[x.JointType]));
+            //_jointsDictionary = body.Joints.Select(x => new JointWrapper(x.Value)).ToDictionary(x => x.JointType);
+            //_jointsDictionary.ToList().ForEach(x => x.Value.Orientation = ToVector4(body.JointOrientations[x.Key]));
 
             System.Numerics.Vector4 ToVector4(JointOrientation jointOrientation)
             {
@@ -50,6 +81,5 @@ namespace Kinect_ing_Pepper.Models
                                                     jointOrientation.Orientation.Z, jointOrientation.Orientation.W);
             }
         }
-
     }
 }

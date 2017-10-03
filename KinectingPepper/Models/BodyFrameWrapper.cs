@@ -5,13 +5,39 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
+using System.Xml.Serialization;
 
 namespace Kinect_ing_Pepper.Models
 {
     public class BodyFrameWrapper
     {
         public System.Numerics.Vector4 FloorClipPlane;
-        public TimeSpan RelativeTime;
+
+        private TimeSpan _relativeTime;
+        [XmlIgnore]
+        public TimeSpan RelativeTime
+        {
+            get { return _relativeTime; }
+            set { _relativeTime = value; }
+        }
+
+        public long RelativeTimeTicks
+        {
+            get { return _relativeTime.Ticks; }
+            set { _relativeTime = new TimeSpan(value); }
+        }
+
+        private string _relativeTimeString;
+        public string RelativeTimeString
+        {
+            get
+            {
+                _relativeTimeString = RelativeTime.ToString();
+                return _relativeTimeString;
+            }
+            set { _relativeTimeString = value; }
+        }
+
         public List<BodyWrapper> TrackedBodies;
 
         public BodyFrameWrapper() { }

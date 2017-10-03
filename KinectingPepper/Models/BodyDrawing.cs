@@ -36,7 +36,7 @@ namespace Kinect_ing_Pepper.Models
             JointEllipses = new Dictionary<JointType, Ellipse>();
             BoneLines = new Dictionary<Tuple<JointType, JointType>, Line>();
 
-            foreach (KeyValuePair<JointType, JointWrapper> joint in body.Joints)
+            foreach (KeyValuePair<JointType, JointWrapper> joint in body.JointsDictionary)
             {
                 Point point = BodyHelper.Instance.MapCameraToSpace(joint.Value.Position, cameraType);
                 JointPoints.Add(joint.Key, point);
@@ -74,7 +74,7 @@ namespace Kinect_ing_Pepper.Models
 
         public void Update(BodyWrapper body, ECameraType cameraType)
         {
-            foreach (KeyValuePair<JointType, JointWrapper> joint in body.Joints)
+            foreach (KeyValuePair<JointType, JointWrapper> joint in body.JointsDictionary)
             {
                 JointPoints[joint.Key] = BodyHelper.Instance.MapCameraToSpace(joint.Value.Position, cameraType);
 
