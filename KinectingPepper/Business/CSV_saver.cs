@@ -31,7 +31,7 @@ namespace Kinect_ing_Pepper.Business
             foreach (var joint in body.Joints)
             {
                 var relativeTime = datetime - startTime;
-                Tuple tuple = new Tuple<Joint, TimeSpan>(joint, relativeTime, this.frameCounter);
+                Tuple<Joint, TimeSpan> tuple = new Tuple<Joint, TimeSpan>(joint, relativeTime, this.frameCounter);
                 jointList.Add(tuple);
             }
             frameCounter++;

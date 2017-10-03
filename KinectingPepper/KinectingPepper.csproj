@@ -63,6 +63,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Business\CSV_saver.cs" />
     <Compile Include="Business\FrameParser.cs" />
     <Compile Include="Enums\ECameraTypes.cs" />
     <Compile Include="UI\SkeletonViewer.xaml.cs">
