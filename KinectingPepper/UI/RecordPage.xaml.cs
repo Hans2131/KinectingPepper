@@ -101,7 +101,7 @@ namespace Kinect_ing_Pepper.UI
                         }
                     }
 
-                    
+
                 }
                 else
                 {
@@ -129,14 +129,21 @@ namespace Kinect_ing_Pepper.UI
 
         private void stopRecordingButton_Click(object sender, RoutedEventArgs e)
         {
+            DateTime dateTime = DateTime.Now;
+
             if (_recordedBodyFrames.Any())
             {
                 _recordBodyFrames = false;
-                PersistFrames.Instance.SerializeToXML(_recordedBodyFrames, @"C:\Users\Hans\Documents\Visual Studio 2017\Projects\KinectingPepper\XmlTest.xml");
+                PersistFrames.Instance.SerializeToXML(_recordedBodyFrames, @"C:\Users\Hans\Documents\Kinect Data\BodyFrames " +
+                                                                                                        dateTime.ToShortDateString() +
+                                                                                                        " " +
+                                                                                                        dateTime.ToLongTimeString().Replace(":", " ") +
+                                                                                                        ".xml");
+
                 _recordedBodyFrames = new List<BodyFrameWrapper>();
             }
 
-            List<BodyFrameWrapper> framesFromDisk = PersistFrames.Instance.DeserializeFromXML(@"C:\Users\Hans\Documents\Visual Studio 2017\Projects\KinectingPepper\XmlTest.xml");
+            List<BodyFrameWrapper> framesFromDisk = PersistFrames.Instance.DeserializeFromXML(@"C:\Users\Hans\Documents\Kinect Data\XmlTest.xml");
         }
 
         private void navigateToRewindPage_Click(object sender, RoutedEventArgs e)
