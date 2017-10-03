@@ -23,7 +23,7 @@ namespace Kinect_ing_Pepper.Business
 
         public void saveCSV()
         {
-            TextWriter tw = new StreamWriter("test.csv");
+            TextWriter tw = new StreamWriter("joints_csv_" + DateTime.Now.ToString() + ".csv");
             var csv = new CsvWriter(tw);
             csv.WriteRecords(jList);
         }
