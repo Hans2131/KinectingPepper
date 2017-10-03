@@ -13,7 +13,6 @@
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="60"></RowDefinition>
         </Grid.RowDefinitions>
-        <local:BodyViewer Grid.Row="0" x:Name="bodyViewer" Margin="10"/>
         <Grid Grid.Row="1" x:Name="playerFooter" Margin="10 0 10 15">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"></ColumnDefinition>
