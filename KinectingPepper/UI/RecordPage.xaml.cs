@@ -135,10 +135,7 @@ namespace Kinect_ing_Pepper.UI
             {
                 _recordBodyFrames = false;
                 PersistFrames.Instance.SerializeToXML(_recordedBodyFrames, @"C:\Users\Hans\Documents\Kinect Data\BodyFrames " +
-                                                                                                        dateTime.ToShortDateString() +
-                                                                                                        " " +
-                                                                                                        dateTime.ToLongTimeString().Replace(":", " ") +
-                                                                                                        ".xml");
+                    dateTime.ToShortDateString() + " " + dateTime.ToLongTimeString().Replace(":", " ") + ".xml");
 
                 _recordedBodyFrames = new List<BodyFrameWrapper>();
             }
