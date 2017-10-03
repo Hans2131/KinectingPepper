@@ -2,7 +2,7 @@
 
 A C# program to calculate arm angles in shoulder-patients.
 
-## How to make changes
+## Code contribution guideline
 
 ### Make a branch
 We use [Feature branching](https://www.atlassian.com/git/tutorials/comparing-workflows#feature-branch-workflow)
