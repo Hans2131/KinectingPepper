@@ -26,13 +26,13 @@ namespace Kinect_ing_Pepper.UI
     public partial class RecordPage : Page
     {
         private MultiSourceFrameReader _reader;
-
         private ECameraType _selectedCamera = ECameraType.Color;
+        private PathNameGenerator generator = new PathNameGenerator();
 
         public RecordPage()
         {
             InitializeComponent();
-
+            generator.CreateFolder();
             if (KinectHelper.Instance.TryStartKinect())
             {
                 _reader = KinectHelper.Instance.KinectSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Color | FrameSourceTypes.Depth | FrameSourceTypes.Infrared | FrameSourceTypes.Body);
@@ -132,15 +132,22 @@ namespace Kinect_ing_Pepper.UI
         {
             if (cbxCameraType.SelectedIndex == 0)
             {
+                //MediaSink.RGBMediaSink.SetPath(generator.CreateFilePathName("RGB").ToArray());
                 MediaSink.RGBMediaSink.Start();
                 cbxCameraType.IsEnabled = false;
             }
             if (cbxCameraType.SelectedIndex == 1)
             {
+                MediaSink.DepthMediaSink.SetPath(generator.CreateFilePathName("Depth").ToArray());
                 MediaSink.DepthMediaSink.Start();
                 cbxCameraType.IsEnabled = false;
             }
                                     
+        }
+
+        private void newPersonButton_Click(object sender, RoutedEventArgs e)
+        {
+            generator.CreateFolder();
         }
 
         private void stopRecordingButton_Click(object sender, RoutedEventArgs e)

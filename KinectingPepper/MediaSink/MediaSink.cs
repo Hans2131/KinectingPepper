@@ -256,5 +256,7 @@ namespace Kinect_ing_Pepper.MediaSink
         //Call to process the FrameBuffer, returns 0 on succes - DONT CALL
         [DllImport("Depth_SinkWriter_CLI.dll", EntryPoint = "WriteFrame")]
         public static extern int WriteFrame();
+        [DllImport("Depth_SinkWriter_CLI.dll", EntryPoint = "SetPath")]
+        public static extern int SetPath(char[] path);
     }
 }
