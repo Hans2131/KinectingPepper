@@ -1,6 +1,6 @@
 language: csharp
-solution: ".KinectingPepper.sln"
+solution: "KinectingPepper.sln"
 install:
-- travis_retry nuget restore -source "https://www.nuget.org/api/v2" .KinectingPepper.sln
+- travis_retry nuget restore -source "https://www.nuget.org/api/v2" KinectingPepper.sln
 script:
 - xbuild KinectingPepper.sln
