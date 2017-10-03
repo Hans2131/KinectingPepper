@@ -98,6 +98,7 @@
     <Compile Include="Business\FrameParser.cs" />
     <Compile Include="Business\KinectHelper.cs" />
     <Compile Include="Business\BodyHelper.cs" />
+    <Compile Include="Business\PathNameGenerator.cs" />
     <Compile Include="Enums\ECameraTypes.cs" />
     <Compile Include="MediaSink\MediaSink.cs" />
     <Compile Include="Models\BodyDrawing.cs" />
