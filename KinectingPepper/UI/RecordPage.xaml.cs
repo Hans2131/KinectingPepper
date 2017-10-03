@@ -1,21 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 using Microsoft.Kinect;
 using Kinect_ing_Pepper.Enums;
-using System.Diagnostics;
 using Kinect_ing_Pepper.Business;
 using System.Xml.Serialization;
 using System.IO;
@@ -30,12 +20,16 @@ namespace Kinect_ing_Pepper.UI
     {
         private MultiSourceFrameReader _reader;
         private ECameraType _selectedCamera = ECameraType.Color;
+        private readonly RewindPage rewindPage;
+        private readonly Frame navigationFrame;
         private List<BodyFrameWrapper> _recordedBodyFrames = new List<BodyFrameWrapper>();
         private bool _recordBodyFrames = false;
 
-        public RecordPage()
+        public RecordPage(Frame navigationFrame)
         {
             InitializeComponent();
+            this.rewindPage = new RewindPage(navigationFrame);
+            this.navigationFrame = navigationFrame;
 
             if (KinectHelper.Instance.TryStartKinect())
             {
@@ -143,6 +137,11 @@ namespace Kinect_ing_Pepper.UI
             }
 
             List<BodyFrameWrapper> framesFromDisk = PersistFrames.Instance.DeserializeFromXML(@"C:\Users\Hans\Documents\Visual Studio 2017\Projects\KinectingPepper\XmlTest.xml");
+        }
+
+        private void navigateToRewindPage_Click(object sender, RoutedEventArgs e)
+        {
+            navigationFrame.Navigate(rewindPage);
         }
     }
 }
