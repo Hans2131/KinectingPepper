@@ -1,6 +1,6 @@
 language: csharp
-solution: KinectingPepper.sln
-script:    # the following commands are just examples, use whatever your build process requires
-  - ./build.sh
-  - ./test.sh
-  - grep "Test Results" build.log
+solution: ".KinectingPepper.sln"
+install:
+- travis_retry nuget restore -source "https://www.nuget.org/api/v2" .KinectingPepper.sln
+script:
+- xbuild KinectingPepper.sln
