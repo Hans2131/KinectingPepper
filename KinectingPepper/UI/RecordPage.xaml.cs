@@ -106,6 +106,8 @@ namespace Kinect_ing_Pepper.UI
                             _recordedBodyFrames.Add(bodyFrameWrapper);
                         }
                     }
+
+                    
                 }
                 else
                 {
@@ -139,6 +141,8 @@ namespace Kinect_ing_Pepper.UI
                 PersistFrames.Instance.SerializeToXML(_recordedBodyFrames, @"C:\Users\Hans\Documents\Visual Studio 2017\Projects\KinectingPepper\XmlTest.xml");
                 _recordedBodyFrames = new List<BodyFrameWrapper>();
             }
+
+            List<BodyFrameWrapper> framesFromDisk = PersistFrames.Instance.DeserializeFromXML(@"C:\Users\Hans\Documents\Visual Studio 2017\Projects\KinectingPepper\XmlTest.xml");
         }
     }
 }
