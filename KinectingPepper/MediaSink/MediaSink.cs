@@ -29,8 +29,12 @@ namespace Kinect_ing_Pepper.MediaSink
         {
             if (frame == null) return true;
             if (!MediaSink.DepthMediaSink.processing) return true;
-            UInt32[] b = new UInt32[1080 * 1920];
-            frame.CopyFrameDataToArray((UInt16[])(object)b);
+            UInt32[] b = new UInt32[512 * 424];
+            ushort[] B = new ushort[512 * 424];
+            frame.CopyFrameDataToArray(B);
+            for (int i = 0; i < 512 * 424; i++)
+                b[i] = B[i];
+            B = null;
             return MediaSink.DepthMediaSink.ProcesData(ref b);           
         }
     }
@@ -191,6 +195,19 @@ namespace Kinect_ing_Pepper.MediaSink
                 while (bufferlist.Count > 0)
                 {
                     UInt32[] buf = (UInt32[])bufferlist.Dequeue();
+                    UInt32 buffer;
+                    for (int i = 0, j = 512 * 421; i < 512 * 424 / 2; i++)
+                    {
+                        buffer = buf[i];
+                        buf[i] = buf[j];
+                        buf[j] = buffer;
+                        j++;
+                        if (j % 512 == 0)
+                        {
+                            j -= (512 * 2);
+                        }
+
+                    }
                     fixed (UInt32* b = &buf[0])
                         pBuf = b;
                     *ppBuf = pBuf;

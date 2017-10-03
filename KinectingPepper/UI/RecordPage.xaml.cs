@@ -42,20 +42,23 @@ namespace Kinect_ing_Pepper.UI
             cbxCameraType.ItemsSource = Enum.GetValues(typeof(ECameraType)).Cast<ECameraType>();
             cbxCameraType.SelectedIndex = 0;
         }
-
+        //System.Diagnostics.Stopwatch z = System.Diagnostics.Stopwatch.StartNew();
+        
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
+            
             FrameParser frameParser = new FrameParser();
             MultiSourceFrame frame = e.FrameReference.AcquireFrame();
 
             switch (_selectedCamera)
             {
+
                 case ECameraType.Color:
                     // Color
                     using (ColorFrame colorFrame = frame.ColorFrameReference.AcquireFrame())
                     {
                         if (colorFrame != null)
-                        {                                                    
+                        {
                             bodyViewer.UpdateFrameCounter();
                             WriteableBitmap wb = frameParser.ParseToBitmap(colorFrame);
                             bodyViewer.KinectImage = wb;
@@ -68,7 +71,8 @@ namespace Kinect_ing_Pepper.UI
                     using (DepthFrame depthFrame = frame.DepthFrameReference.AcquireFrame())
                     {
                         if (depthFrame != null)
-                        {                            
+                        {
+
                             MediaSink.General.DepthToBuf(depthFrame);
                             bodyViewer.UpdateFrameCounter();
                             bodyViewer.KinectImage = frameParser.ParseToBitmap(depthFrame);
@@ -88,6 +92,7 @@ namespace Kinect_ing_Pepper.UI
                 default:
                     break;
             }
+        
 
             using (BodyFrame bodyFrame = frame.BodyFrameReference.AcquireFrame())
             {
