@@ -7,6 +7,9 @@ using System.Windows.Controls;
 using Microsoft.Kinect;
 using Kinect_ing_Pepper.Enums;
 using Kinect_ing_Pepper.Business;
+using System.Xml.Serialization;
+using System.IO;
+using Kinect_ing_Pepper.Models;
 
 namespace Kinect_ing_Pepper.UI
 {
@@ -16,10 +19,11 @@ namespace Kinect_ing_Pepper.UI
     public partial class RecordPage : Page
     {
         private MultiSourceFrameReader _reader;
-
         private ECameraType _selectedCamera = ECameraType.Color;
         private readonly RewindPage rewindPage;
         private readonly Frame navigationFrame;
+        private List<BodyFrameWrapper> _recordedBodyFrames = new List<BodyFrameWrapper>();
+        private bool _recordBodyFrames = false;
 
         public RecordPage(Frame navigationFrame)
         {
@@ -84,16 +88,20 @@ namespace Kinect_ing_Pepper.UI
             {
                 if (bodyFrame != null)
                 {
-                    Body[] bodies = new Body[bodyFrame.BodyCount];
-                    bodyFrame.GetAndRefreshBodyData(bodies);
+                    BodyFrameWrapper bodyFrameWrapper = new BodyFrameWrapper(bodyFrame);
 
-                    List<Body> trackedBodies = bodies.Where(x => x.IsTracked).ToList();
-
-                    //choose body?
-                    if (trackedBodies.Any())
+                    //choose body to record? why not safe all..
+                    if (bodyFrameWrapper.TrackedBodies.Any())
                     {
-                        bodyViewer.RenderBodies(trackedBodies, _selectedCamera);
+                        bodyViewer.RenderBodies(bodyFrameWrapper.TrackedBodies, _selectedCamera);
+
+                        if (_recordBodyFrames)
+                        {
+                            _recordedBodyFrames.Add(bodyFrameWrapper);
+                        }
                     }
+
+
                 }
                 else
                 {
@@ -111,17 +119,28 @@ namespace Kinect_ing_Pepper.UI
 
         private void cbxCameraType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Enum.TryParse<ECameraType>(cbxCameraType.SelectedValue.ToString(), out _selectedCamera);
+            Enum.TryParse(cbxCameraType.SelectedValue.ToString(), out _selectedCamera);
         }
 
         private void startRecordingButton_Click(object sender, RoutedEventArgs e)
         {
-
+            _recordBodyFrames = true;
         }
 
         private void stopRecordingButton_Click(object sender, RoutedEventArgs e)
         {
+            DateTime dateTime = DateTime.Now;
 
+            if (_recordedBodyFrames.Any())
+            {
+                _recordBodyFrames = false;
+                PersistFrames.Instance.SerializeToXML(_recordedBodyFrames, @"C:\Users\Hans\Documents\Kinect Data\BodyFrames " +
+                    dateTime.ToShortDateString() + " " + dateTime.ToLongTimeString().Replace(":", " ") + ".xml");
+
+                _recordedBodyFrames = new List<BodyFrameWrapper>();
+            }
+
+            List<BodyFrameWrapper> framesFromDisk = PersistFrames.Instance.DeserializeFromXML(@"C:\Users\Hans\Documents\Kinect Data\XmlTest.xml");
         }
 
         private void navigateToRewindPage_Click(object sender, RoutedEventArgs e)

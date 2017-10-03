@@ -34,7 +34,7 @@ namespace Kinect_ing_Pepper.Models
 
         public Dictionary<Tuple<JointType, JointType>, Line> BoneLines { get; set; }
 
-        public BodyDrawing(Body body, ECameraType cameraType)
+        public BodyDrawing(BodyWrapper body, ECameraType cameraType)
         {
             TrackingId = body.TrackingId;
 
@@ -42,7 +42,7 @@ namespace Kinect_ing_Pepper.Models
             JointEllipses = new Dictionary<JointType, Ellipse>();
             BoneLines = new Dictionary<Tuple<JointType, JointType>, Line>();
 
-            foreach (KeyValuePair<JointType, Joint> joint in body.Joints)
+            foreach (KeyValuePair<JointType, JointWrapper> joint in body.JointsDictionary)
             {
                 Point point = BodyHelper.Instance.MapCameraToSpace(joint.Value.Position, cameraType);
                 JointPoints.Add(joint.Key, point);
@@ -79,9 +79,9 @@ namespace Kinect_ing_Pepper.Models
         }
 
         //Bones and joints are hidden when inferred and nottracked to avoid spacing of line of the screen
-        public void Update(Body body, ECameraType cameraType)
+        public void Update(BodyWrapper body, ECameraType cameraType)
         {
-            foreach (KeyValuePair<JointType, Joint> joint in body.Joints)
+            foreach (KeyValuePair<JointType, JointWrapper> joint in body.JointsDictionary)
             {
                 JointPoints[joint.Key] = BodyHelper.Instance.MapCameraToSpace(joint.Value.Position, cameraType);
 
@@ -118,13 +118,13 @@ namespace Kinect_ing_Pepper.Models
                 line.X2 = JointPoints[bone.Item2].X;
                 line.Y2 = JointPoints[bone.Item2].Y;
 
-                if (body.Joints[bone.Item1].TrackingState == TrackingState.Inferred || body.Joints[bone.Item2].TrackingState == TrackingState.Inferred)
+                if (body.JointsDictionary[bone.Item1].TrackingState == TrackingState.Inferred || body.JointsDictionary[bone.Item2].TrackingState == TrackingState.Inferred)
                 {
                     //line.Stroke = _inferredBrush;
                     //line.StrokeThickness = _inferredThickness;
                     line.Visibility = Visibility.Visible;
                 }
-                else if (body.Joints[bone.Item1].TrackingState == TrackingState.NotTracked || body.Joints[bone.Item2].TrackingState == TrackingState.NotTracked)
+                else if (body.JointsDictionary[bone.Item1].TrackingState == TrackingState.NotTracked || body.JointsDictionary[bone.Item2].TrackingState == TrackingState.NotTracked)
                 {
                     line.Visibility = Visibility.Hidden;
                 }

@@ -81,17 +81,17 @@ namespace Kinect_ing_Pepper.UI
             }
         }
 
-        public void RenderBodies(List<Body> trackedBodies, ECameraType cameraType)
+        public void RenderBodies(List<BodyWrapper> trackedBodies, ECameraType cameraType)
         {
             DeleteUntrackedBodies(trackedBodies);
 
-            foreach (Body body in trackedBodies)
+            foreach (BodyWrapper body in trackedBodies)
             {
                 RenderBody(body, cameraType);
             }
         }
 
-        public void DeleteUntrackedBodies(List<Body> trackedBodies)
+        public void DeleteUntrackedBodies(List<BodyWrapper> trackedBodies)
         {
             if (trackedBodies == null)
             {
@@ -111,7 +111,7 @@ namespace Kinect_ing_Pepper.UI
             }
         }
 
-        private void RenderBody(Body body, ECameraType cameraType)
+        private void RenderBody(BodyWrapper body, ECameraType cameraType)
         {
             BodyDrawing bodyDrawing = BodyHelper.Instance.BodyDrawings.Where(x => x.TrackingId == body.TrackingId).FirstOrDefault();
             bool isNewBody = false;
