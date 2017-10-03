@@ -130,12 +130,22 @@ namespace Kinect_ing_Pepper.UI
 
         private void startRecordingButton_Click(object sender, RoutedEventArgs e)
         {
-            MediaSink.DepthMediaSink.Start();
-            MediaSink.RGBMediaSink.Start();                        
+            if (cbxCameraType.SelectedIndex == 0)
+            {
+                MediaSink.RGBMediaSink.Start();
+                cbxCameraType.IsEnabled = false;
+            }
+            if (cbxCameraType.SelectedIndex == 1)
+            {
+                MediaSink.DepthMediaSink.Start();
+                cbxCameraType.IsEnabled = false;
+            }
+                                    
         }
 
         private void stopRecordingButton_Click(object sender, RoutedEventArgs e)
         {
+            cbxCameraType.IsEnabled = true;
             MediaSink.RGBMediaSink.Stop();
             MediaSink.DepthMediaSink.Stop();
         }
