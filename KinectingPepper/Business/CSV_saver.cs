@@ -38,7 +38,7 @@ namespace Kinect_ing_Pepper.Business
 
             foreach (var bw in bfw.TrackedBodies)
             {
-                if(bw.TrackingId == trackedBody.TrackingId)
+                if (bw.TrackingId == trackedBody.TrackingId)
                 {
                     foreach (var jw in bw.Joints)
                     {
@@ -49,7 +49,6 @@ namespace Kinect_ing_Pepper.Business
             }
             this.frameCounter++;
 
-            }
         }
     }
 }
