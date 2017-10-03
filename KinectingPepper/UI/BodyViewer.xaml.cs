@@ -65,7 +65,7 @@ namespace Kinect_ing_Pepper.UI
         }
         #endregion
 
-        public int UpdateFrameCounter()
+        public void UpdateFrameCounter()
         {
             TimeSpan currentTimeSpan = DateTime.Now - _lastFPSSample;
 
@@ -79,7 +79,6 @@ namespace Kinect_ing_Pepper.UI
             {
                 _frameCounter++;
             }
-            return currentTimeSpan.Milliseconds;
         }
 
         public void RenderBodies(List<Body> trackedBodies, ECameraType cameraType)

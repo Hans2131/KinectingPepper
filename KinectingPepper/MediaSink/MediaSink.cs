@@ -25,7 +25,7 @@ namespace Kinect_ing_Pepper.MediaSink
             return MediaSink.RGBMediaSink.ProcesData(ref buf);
         }
 
-        public static bool DepthToBuf(DepthFrame frame,int dur)
+        public static bool DepthToBuf(DepthFrame frame)
         {
             if (frame == null) return true;
             if (!MediaSink.DepthMediaSink.processing) return true;
@@ -174,16 +174,14 @@ namespace Kinect_ing_Pepper.MediaSink
          
     public unsafe class DepthMediaSink
     {
-        private static System.Collections.Queue bufferlistlen = new System.Collections.Queue();
         private static System.Collections.Queue bufferlist = new System.Collections.Queue();
         public static bool processing = false;
         private static bool writeractive = false;
         //Call to process data to the buffer - DO CALL
-        public static bool ProcesData(ref UInt32[] data,int dur)
+        public static bool ProcesData(ref UInt32[] data)
         {
             if (!processing) return true;                                                            
             bufferlist.Enqueue(data);
-            bufferlistlen.Enqueue((UInt32)dur);
             return false;
         }
         //thread to write data to file - DONT CALL
@@ -192,13 +190,11 @@ namespace Kinect_ing_Pepper.MediaSink
             writeractive = true;
             UInt32** ppBuf = MediaSink.DepthMediaSink.GetBuffer();
             UInt32* pBuf;
-            UInt32 dur;
             while (processing)
             {
                 while (bufferlist.Count > 0)
                 {
                     UInt32[] buf = (UInt32[])bufferlist.Dequeue();
-                    dur = (UInt32)bufferlistlen.Dequeue();
                     UInt32 buffer;
                     for (int i = 0, j = 512 * 421; i < 512 * 424 / 2; i++)
                     {
@@ -215,7 +211,7 @@ namespace Kinect_ing_Pepper.MediaSink
                     fixed (UInt32* b = &buf[0])
                         pBuf = b;
                     *ppBuf = pBuf;
-                    MediaSink.DepthMediaSink.WriteFrame(dur);
+                    MediaSink.DepthMediaSink.WriteFrame();
                     buf = null;
                 }
             }
@@ -259,6 +255,6 @@ namespace Kinect_ing_Pepper.MediaSink
         public static extern UInt32** GetBuffer();
         //Call to process the FrameBuffer, returns 0 on succes - DONT CALL
         [DllImport("Depth_SinkWriter_CLI.dll", EntryPoint = "WriteFrame")]
-        public static extern int WriteFrame(UInt32 dur);
+        public static extern int WriteFrame();
     }
 }

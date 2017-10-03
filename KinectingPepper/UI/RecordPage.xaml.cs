@@ -72,8 +72,9 @@ namespace Kinect_ing_Pepper.UI
                     {
                         if (depthFrame != null)
                         {
-                            int dur = bodyViewer.UpdateFrameCounter();
-                            MediaSink.General.DepthToBuf(depthFrame,dur);  
+
+                            MediaSink.General.DepthToBuf(depthFrame);
+                            bodyViewer.UpdateFrameCounter();
                             bodyViewer.KinectImage = frameParser.ParseToBitmap(depthFrame);
                         }
                     }
