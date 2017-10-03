@@ -4,14 +4,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Kinect_ing_Pepper.Models;
+using System.IO;
+using CsvHelper;
 
 namespace Kinect_ing_Pepper.Business
 {
     public class CSV_saver
     {
-        private DateTime startTime { get; set; }
-        private List<Tuple<Joint, TimeSpan, int>> jointList { get; set; }
+        private DateTime startTime;
+        private List<JointRow> jList;
         private int frameCounter;
+        private BodyWrapper trackedBody;
         public CSV_saver()
         {
             frameCounter = 1;
@@ -19,22 +23,33 @@ namespace Kinect_ing_Pepper.Business
 
         public void saveCSV()
         {
+            TextWriter tw = new StreamWriter("test.csv");
+            var csv = new CsvWriter(tw);
+            csv.WriteRecords(jList);
         }
 
-        public void saveSkeletonFrame(Body body, DateTime datetime)
+        public void saveSkeletonFrame(BodyFrameWrapper bfw)
         {
-            if (jointList == null)
+            if (jList == null)
             {
-                jointList = new LinkedList<Tuple<Joint, TimeSpan>>;
-                startTime = datetime;
+                jList = new List<JointRow>();
+                trackedBody = bfw.TrackedBodies[0];
             }
-            foreach (var joint in body.Joints)
+
+            foreach (var bw in bfw.TrackedBodies)
             {
-                var relativeTime = datetime - startTime;
-                Tuple<Joint, TimeSpan> tuple = new Tuple<Joint, TimeSpan>(joint, relativeTime, this.frameCounter);
-                jointList.Add(tuple);
+                if(bw.TrackingId == trackedBody.TrackingId)
+                {
+                    foreach (var jw in bw.Joints)
+                    {
+                        jList.Add(new JointRow(jw, bfw.RelativeTime, this.frameCounter));
+                    }
+                }
+
             }
-            frameCounter++;
+            this.frameCounter++;
+
+            }
         }
     }
 }
