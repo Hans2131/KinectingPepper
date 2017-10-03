@@ -121,7 +121,7 @@ namespace Kinect_ing_Pepper.UI
 
         private void stopRecordingButton_Click(object sender, RoutedEventArgs e)
         {
-            
+
         }
 
         private void navigateToRewindPage_Click(object sender, RoutedEventArgs e)

@@ -17,8 +17,14 @@ namespace Kinect_ing_Pepper.Models
     {
         private double _jointRadius = 10;
         private double _jointLineThickness = 5;
+        private Brush _ellipseBrush = Brushes.DarkBlue;
+        private Brush _ellipseFillBrush = Brushes.Blue;
+
         private double _boneLineThickness = 5;
-        //private Brush _jointBrush = new SolidColorBrush(Color.FromRgb(66, 134, 244));
+        private Brush _boneBrush = Brushes.Green;
+
+        private Brush _inferredBrush = Brushes.LawnGreen;
+        private double _inferredThickness = 1;
 
         public ulong TrackingId { get; set; }
 
@@ -45,9 +51,9 @@ namespace Kinect_ing_Pepper.Models
                 {
                     Width = _jointRadius * 2,
                     Height = _jointRadius * 2,
-                    Fill = Brushes.Blue,
+                    Fill = _ellipseFillBrush,
                     StrokeThickness = _jointLineThickness,
-                    Stroke = Brushes.DarkBlue
+                    Stroke = _ellipseBrush
                 };
 
                 Canvas.SetLeft(ellipse, point.X - _jointRadius);
@@ -61,7 +67,7 @@ namespace Kinect_ing_Pepper.Models
                 Line line = new Line
                 {
                     StrokeThickness = _boneLineThickness,
-                    Stroke = Brushes.Green,
+                    Stroke = _boneBrush,
                     X1 = JointPoints[bone.Item1].X,
                     Y1 = JointPoints[bone.Item1].Y,
                     X2 = JointPoints[bone.Item2].X,
@@ -72,6 +78,7 @@ namespace Kinect_ing_Pepper.Models
             }
         }
 
+        //Bones and joints are hidden when inferred and nottracked to avoid spacing of line of the screen
         public void Update(Body body, ECameraType cameraType)
         {
             foreach (KeyValuePair<JointType, Joint> joint in body.Joints)
@@ -82,6 +89,25 @@ namespace Kinect_ing_Pepper.Models
 
                 Canvas.SetLeft(ellipse, JointPoints[joint.Key].X - _jointRadius);
                 Canvas.SetTop(ellipse, JointPoints[joint.Key].Y - _jointRadius);
+
+                if (joint.Value.TrackingState == TrackingState.Inferred)
+                {
+                    //ellipse.Stroke = _inferredBrush;
+                    //ellipse.Fill = _inferredBrush;
+                    //ellipse.StrokeThickness = _inferredThickness;
+                    ellipse.Visibility = Visibility.Hidden;
+                }
+                else if (joint.Value.TrackingState == TrackingState.NotTracked)
+                {
+                    ellipse.Visibility = Visibility.Hidden;
+                }
+                else
+                {
+                    //ellipse.Stroke = _ellipseFillBrush;
+                    //ellipse.StrokeThickness = _boneLineThickness;
+                    //ellipse.Fill = _ellipseFillBrush;
+                    ellipse.Visibility = Visibility.Visible;
+                }
             }
 
             foreach (Tuple<JointType, JointType> bone in BodyHelper.Instance.BodyHierarchy)
@@ -90,7 +116,24 @@ namespace Kinect_ing_Pepper.Models
                 line.X1 = JointPoints[bone.Item1].X;
                 line.Y1 = JointPoints[bone.Item1].Y;
                 line.X2 = JointPoints[bone.Item2].X;
-                line.Y2 = JointPoints[bone.Item2].Y;                
+                line.Y2 = JointPoints[bone.Item2].Y;
+
+                if (body.Joints[bone.Item1].TrackingState == TrackingState.Inferred || body.Joints[bone.Item2].TrackingState == TrackingState.Inferred)
+                {
+                    //line.Stroke = _inferredBrush;
+                    //line.StrokeThickness = _inferredThickness;
+                    line.Visibility = Visibility.Visible;
+                }
+                else if (body.Joints[bone.Item1].TrackingState == TrackingState.NotTracked || body.Joints[bone.Item2].TrackingState == TrackingState.NotTracked)
+                {
+                    line.Visibility = Visibility.Hidden;
+                }
+                else
+                {
+                    //line.Stroke = _boneBrush;
+                    //line.StrokeThickness = _boneLineThickness;
+                    line.Visibility = Visibility.Visible;
+                }
             }
         }
     }
