@@ -133,9 +133,12 @@ namespace Kinect_ing_Pepper.UI
 
         private void stopRecordingButton_Click(object sender, RoutedEventArgs e)
         {
-            _recordBodyFrames = false;
-            PersistFrames.Instance.SerializeToXML(_recordedBodyFrames, @"C:\Users\Hans\Documents\Visual Studio 2017\Projects\KinectingPepper\XmlTest.xml");
-            _recordedBodyFrames = new List<BodyFrameWrapper>();
+            if (_recordedBodyFrames.Any())
+            {
+                _recordBodyFrames = false;
+                PersistFrames.Instance.SerializeToXML(_recordedBodyFrames, @"C:\Users\Hans\Documents\Visual Studio 2017\Projects\KinectingPepper\XmlTest.xml");
+                _recordedBodyFrames = new List<BodyFrameWrapper>();
+            }
         }
     }
 }
