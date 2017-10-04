@@ -8,18 +8,18 @@ namespace Kinect_ing_Pepper.Business
 {
     class PathNameGenerator
     {
-        public string folderPathName { get; set; }
-        private string defaultPackage = "C:/images/Pepper/";
+        public string FolderPathName { get; set; }
+        private string _defaultPackage = "C:/images/Pepper/";
 
         public void CreateFolder()
         {
             DateTime dateTime = DateTime.Now;
             string dateTimeString = dateTime.ToString();
             dateTimeString = dateTimeString.Replace(":", "_");
-            string path = defaultPackage + dateTimeString;
+            string path = _defaultPackage + dateTimeString;
             path = path.Replace(" ", "_");
             System.IO.Directory.CreateDirectory(path);
-            this.folderPathName = path; 
+            this.FolderPathName = path; 
         }
 
         private string CreateFileName(string cameraType)
@@ -31,7 +31,7 @@ namespace Kinect_ing_Pepper.Business
         
         public string CreateFilePathName(string cameraType)
         {
-            return folderPathName + "/" + CreateFileName(cameraType);
+            return FolderPathName + "/" + CreateFileName(cameraType);
         }
     }
 }
