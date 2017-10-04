@@ -45,7 +45,6 @@ namespace Kinect_ing_Pepper.UI
             btnStartRecording.IsEnabled = true;
             btnStopRecording.IsEnabled = false;
         }
-        //System.Diagnostics.Stopwatch z = System.Diagnostics.Stopwatch.StartNew();
         
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
@@ -137,24 +136,28 @@ namespace Kinect_ing_Pepper.UI
 
         private void startRecordingButton_Click(object sender, RoutedEventArgs e)
         {
-            if (cbxCameraType.SelectedIndex == 0)
+            if (KinectHelper.Instance.HasStarted())
             {
-                MediaSink.RGBMediaSink.SetPath(generator.CreateFilePathName("RGB").ToArray());
-                MediaSink.RGBMediaSink.Start();
-                cbxCameraType.IsEnabled = false;
+                if (cbxCameraType.SelectedIndex == 0)
+                {
+                    MediaSink.RGBMediaSink.SetPath(generator.CreateFilePathName("RGB").ToArray());
+                    MediaSink.RGBMediaSink.Start();
+                    cbxCameraType.IsEnabled = false;
+                }
+                if (cbxCameraType.SelectedIndex == 1)
+                {
+                    string pathName = generator.CreateFilePathName("Depth");
+                    MediaSink.DepthMediaSink.SetPath(pathName.ToArray());
+                    MediaSink.DepthMediaSink.Start();
+                    cbxCameraType.IsEnabled = false;
+                }
+
+                _recordBodyFrames = true;
             }
-            if (cbxCameraType.SelectedIndex == 1)
-            {
-                string pathName = generator.CreateFilePathName("Depth");
-                MediaSink.DepthMediaSink.SetPath(pathName.ToArray());
-                MediaSink.DepthMediaSink.Start();
-                cbxCameraType.IsEnabled = false;
-            }
-                                    
+                                  
             _recordBodyFrames = true;
             btnStartRecording.IsEnabled = false;
             btnStopRecording.IsEnabled = true;
-
         }
 
         private void newPersonButton_Click(object sender, RoutedEventArgs e)
