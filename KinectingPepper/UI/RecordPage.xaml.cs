@@ -162,7 +162,7 @@ namespace Kinect_ing_Pepper.UI
                 MediaSink.DepthMediaSink.Start();
                 cbxCameraType.IsEnabled = false;
             }
-                                    
+
             _recordBodyFrames = true;
         }
 
@@ -190,8 +190,6 @@ namespace Kinect_ing_Pepper.UI
             cbxCameraType.IsEnabled = true;
             MediaSink.RGBMediaSink.Stop();
             MediaSink.DepthMediaSink.Stop();
-            btnStartRecording.IsEnabled = false;
-            btnStopRecording.IsEnabled = true;
             List<BodyFrameWrapper> framesFromDisk = PersistFrames.Instance.DeserializeFromXML(generator.folderPathName + "/XmlTest.xml");
         }
 

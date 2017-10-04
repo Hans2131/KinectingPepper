@@ -56,7 +56,7 @@ namespace Kinect_ing_Pepper.Business
 
         public bool HasStarted()
         {
-            return _kinectSensor != null && _kinectSensor.IsOpen && _kinectSensor.IsAvailable;
+            return _kinectSensor != null && _kinectSensor.IsOpen;
         }
 
         public void StopKinect()
