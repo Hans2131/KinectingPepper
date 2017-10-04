@@ -156,5 +156,26 @@ namespace Kinect_ing_Pepper.UI
                 _canvasCleared = false;
             }
         }
+        Line line;
+        public void TestDrawLine()
+        {
+            if (canvasSkeleton.ActualWidth == 0)
+            {
+                canvasSkeleton.Width = 500;
+                canvasSkeleton.Height = 500;
+            }
+
+            line = new Line();
+            line.X1 = 10;
+            line.Y1 = 10;
+            line.X2 = 100;
+            line.Y2 = 100;
+            line.Stroke = Brushes.Green;
+            line.StrokeThickness = 10;
+
+            canvasSkeleton.Children.Add(line);
+
+            
+        }
     }
 }
