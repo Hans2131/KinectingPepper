@@ -12,7 +12,6 @@ namespace Kinect_ing_Pepper.Business
 {
     public class CSV_saver
     {
-        private DateTime startTime;
         private List<JointRow> jList;
         private int frameCounter;
         private BodyWrapper trackedBody;
@@ -23,9 +22,10 @@ namespace Kinect_ing_Pepper.Business
 
         public void saveCSV()
         {
-            TextWriter tw = new StreamWriter("joints_csv_" + DateTime.Now.ToString() + ".csv");
-            var csv = new CsvWriter(tw);
+            StreamWriter sw = new StreamWriter("joints_csv.csv");
+            var csv = new CsvWriter(sw);
             csv.WriteRecords(jList);
+            csv.Dispose();
         }
 
         public void saveSkeletonFrame(BodyFrameWrapper bfw)
@@ -35,14 +35,15 @@ namespace Kinect_ing_Pepper.Business
                 jList = new List<JointRow>();
                 trackedBody = bfw.TrackedBodies[0];
             }
-
             foreach (var bw in bfw.TrackedBodies)
             {
-                if (bw.TrackingId == trackedBody.TrackingId)
+                foreach (var jw in bw.Joints)
                 {
-                    foreach (var jw in bw.Joints)
+                    var jr = new JointRow(jw, bfw.RelativeTimeString, this.frameCounter, bw.TrackingId, jw.TrackingState);
+                    jList.Add(jr);
+                    if(frameCounter == 99)
                     {
-                        jList.Add(new JointRow(jw, bfw.RelativeTime, this.frameCounter));
+                        Console.WriteLine(jr.ToString());
                     }
                 }
 
