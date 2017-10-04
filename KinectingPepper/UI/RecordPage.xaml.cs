@@ -35,9 +35,18 @@ namespace Kinect_ing_Pepper.UI
             Logger.Instance.LogMessage("Application started!");
 
             generator.CreateFolder();
-            this.rewindPage = new RewindPage(navigationFrame);
+            rewindPage = new RewindPage(navigationFrame);
             this.navigationFrame = navigationFrame;
 
+            RestartKinect();
+            cbxCameraType.ItemsSource = Enum.GetValues(typeof(ECameraType)).Cast<ECameraType>();
+            cbxCameraType.SelectedIndex = 0;
+        }
+
+        private void RestartKinect()
+        {
+            bodyViewer.Clear();
+            if (_reader != null) _reader.Dispose();
             if (KinectHelper.Instance.TryStartKinect())
             {
                 _reader = KinectHelper.Instance.KinectSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Color | FrameSourceTypes.Depth | FrameSourceTypes.Infrared | FrameSourceTypes.Body);
@@ -46,6 +55,8 @@ namespace Kinect_ing_Pepper.UI
 
             cbxCameraType.ItemsSource = Enum.GetValues(typeof(ECameraType)).Cast<ECameraType>();
             cbxCameraType.SelectedIndex = 0;
+            btnStartRecording.IsEnabled = true;
+            btnStopRecording.IsEnabled = false;
         }
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
@@ -56,7 +67,6 @@ namespace Kinect_ing_Pepper.UI
 
             switch (_selectedCamera)
             {
-
                 case ECameraType.Color:
                     // Color
                     using (ColorFrame colorFrame = frame.ColorFrameReference.AcquireFrame())
@@ -114,8 +124,6 @@ namespace Kinect_ing_Pepper.UI
                             _recordedBodyFrames.Add(bodyFrameWrapper);
                         }
                     }
-
-
                 }
                 else
                 {
@@ -124,22 +132,30 @@ namespace Kinect_ing_Pepper.UI
             }
         }
 
-        private void Page_Unloaded(object sender, RoutedEventArgs e)
-        {
-            _reader.Dispose();
-
-            KinectHelper.Instance.StopKinect();
-        }
 
         private void cbxCameraType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Enum.TryParse(cbxCameraType.SelectedValue.ToString(), out _selectedCamera);
         }
 
+        private void RestartKinectButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (KinectHelper.Instance.KinectSensor.IsAvailable && !_recordingStarted)
+            {
+                KinectHelper.Instance.StopKinect();
+            }
+            RestartKinect();
+        }
+
         private void startRecordingButton_Click(object sender, RoutedEventArgs e)
         {
             if (KinectHelper.Instance.KinectSensor.IsAvailable && !_recordingStarted)
             {
+                btnRestartKinect.IsEnabled = false;
+                btnRewindPageNavigation.IsEnabled = false;
+                btnStopRecording.IsEnabled = true;
+                btnStartRecording.IsEnabled = false;
+
                 if (cbxCameraType.SelectedIndex == 0)
                 {
                     MediaSink.RGBMediaSink.SetPath(generator.CreateFilePathName("RGB").ToArray());
@@ -171,11 +187,15 @@ namespace Kinect_ing_Pepper.UI
             if (_recordingStarted)
             {
                 _recordingStarted = false;
+                DateTime dateTime = DateTime.Now;
 
-                DateTime dateTime = DateTime.Now;                
+                btnRestartKinect.IsEnabled = true;
+                btnRewindPageNavigation.IsEnabled = true;
+                btnStopRecording.IsEnabled = false;
+                btnStartRecording.IsEnabled = true;
 
                 if (_recordedBodyFrames.Any())
-                {                    
+                {
                     string filePath = generator.FolderPathName + "/" +
                         dateTime.ToShortDateString() + " " + dateTime.ToLongTimeString().Replace(":", " ") + ".xml";
                     PersistFrames.Instance.SerializeToXML(_recordedBodyFrames, filePath);
@@ -185,11 +205,14 @@ namespace Kinect_ing_Pepper.UI
 
                     Logger.Instance.LogMessage("Xml saved as: " + filePath);
                 }
+
                 cbxCameraType.IsEnabled = true;
+
                 MediaSink.RGBMediaSink.Stop();
                 MediaSink.DepthMediaSink.Stop();
+
                 Logger.Instance.LogMessage("Recording stopped, files saved in " + generator.FolderPathName);
-            }            
+            }
         }
 
         private void navigateToRewindPage_Click(object sender, RoutedEventArgs e)
