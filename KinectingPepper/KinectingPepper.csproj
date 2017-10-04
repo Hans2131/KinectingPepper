@@ -180,8 +180,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Extensions\Depth_SinkWriter_CLI.dll" />
-    <Content Include="Extensions\RGB_SinkWriter_CLI.dll" />
     <Folder Include="Extensions\" />
     <Folder Include="Serialization\" />
   </ItemGroup>

@@ -143,7 +143,8 @@ namespace Kinect_ing_Pepper.UI
             }
             if (cbxCameraType.SelectedIndex == 1)
             {
-                MediaSink.DepthMediaSink.SetPath(generator.CreateFilePathName("Depth").ToArray());
+                string pathName = generator.CreateFilePathName("Depth");
+                MediaSink.DepthMediaSink.SetPath(pathName.ToArray());
                 MediaSink.DepthMediaSink.Start();
                 cbxCameraType.IsEnabled = false;
             }
