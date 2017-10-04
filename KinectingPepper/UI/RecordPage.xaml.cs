@@ -10,6 +10,7 @@ using Kinect_ing_Pepper.Business;
 using System.Xml.Serialization;
 using System.IO;
 using Kinect_ing_Pepper.Models;
+using System.Windows.Media.Imaging;
 
 namespace Kinect_ing_Pepper.UI
 {
@@ -162,21 +163,20 @@ namespace Kinect_ing_Pepper.UI
             if (_recordedBodyFrames.Any())
             {
                 _recordBodyFrames = false;
-                PersistFrames.Instance.SerializeToXML(_recordedBodyFrames, @"C:\Users\Hans\Documents\Kinect Data\BodyFrames " +
+                PersistFrames.Instance.SerializeToXML(_recordedBodyFrames, generator.folderPathName +"/"+
                     dateTime.ToShortDateString() + " " + dateTime.ToLongTimeString().Replace(":", " ") + ".xml");
 
                 _recordedBodyFrames = new List<BodyFrameWrapper>();
             }
-
-            List<BodyFrameWrapper> framesFromDisk = PersistFrames.Instance.DeserializeFromXML(@"C:\Users\Hans\Documents\Kinect Data\XmlTest.xml");
+            cbxCameraType.IsEnabled = true;
+            MediaSink.RGBMediaSink.Stop();
+            MediaSink.DepthMediaSink.Stop();
+            List<BodyFrameWrapper> framesFromDisk = PersistFrames.Instance.DeserializeFromXML(generator.folderPathName + "/XmlTest.xml");
         }
 
         private void navigateToRewindPage_Click(object sender, RoutedEventArgs e)
         {
             navigationFrame.Navigate(rewindPage);
-            cbxCameraType.IsEnabled = true;
-            MediaSink.RGBMediaSink.Stop();
-            MediaSink.DepthMediaSink.Stop();
         }
     }
 }
