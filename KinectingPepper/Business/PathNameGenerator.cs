@@ -15,7 +15,7 @@ namespace Kinect_ing_Pepper.Business
         {
             DateTime dateTime = DateTime.Now;
             string dateTimeString = dateTime.ToString();
-            dateTimeString = dateTimeString.Replace(":", ".");
+            dateTimeString = dateTimeString.Replace(":", "_");
             string path = defaultPackage + dateTimeString;
             path = path.Replace(" ", "_");
             System.IO.Directory.CreateDirectory(path);
@@ -25,8 +25,8 @@ namespace Kinect_ing_Pepper.Business
         private string CreateFileName(string cameraType)
         {
             DateTime dateTime = DateTime.Now;
-            string dateTimeString = dateTime.ToString().Replace(":", ".");
-            return cameraType + "_" + dateTimeString;
+            string dateTimeString = dateTime.ToString().Replace(":", "_");
+            return cameraType + "_" + dateTimeString + ".mp4";
         }
         
         public string CreateFilePathName(string cameraType)

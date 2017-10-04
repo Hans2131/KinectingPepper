@@ -132,7 +132,7 @@ namespace Kinect_ing_Pepper.UI
         {
             if (cbxCameraType.SelectedIndex == 0)
             {
-                //MediaSink.RGBMediaSink.SetPath(generator.CreateFilePathName("RGB").ToArray());
+                MediaSink.RGBMediaSink.SetPath(generator.CreateFilePathName("RGB").ToArray());
                 MediaSink.RGBMediaSink.Start();
                 cbxCameraType.IsEnabled = false;
             }
