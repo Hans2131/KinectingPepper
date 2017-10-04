@@ -1,5 +1,7 @@
 ﻿using System.Windows;
 
+using Kinect_ing_Pepper.MediaSink;
+
 namespace Kinect_ing_Pepper.UI
 {
     /// <summary>
@@ -7,8 +9,8 @@ namespace Kinect_ing_Pepper.UI
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
-        {
+        unsafe public MainWindow()
+        {            
             InitializeComponent();
 
             navigationFrame.Navigate(new RecordPage(navigationFrame));

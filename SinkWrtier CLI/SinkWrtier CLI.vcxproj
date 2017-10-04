@@ -73,7 +73,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)\KinectingPepper\bin\Debug</OutDir>
-    <TargetName>Depth_SinkWriter_CLI</TargetName>
+    <TargetName>RGB_SinkWriter_CLI</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>C:\Users\Thijs\Source\Repos\KinectingPepper\KinectingPepper\Extensions</OutDir>

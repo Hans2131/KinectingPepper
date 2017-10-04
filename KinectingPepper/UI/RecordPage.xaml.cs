@@ -10,6 +10,7 @@ using Kinect_ing_Pepper.Business;
 using System.Xml.Serialization;
 using System.IO;
 using Kinect_ing_Pepper.Models;
+using System.Windows.Media.Imaging;
 
 namespace Kinect_ing_Pepper.UI
 {
@@ -24,10 +25,12 @@ namespace Kinect_ing_Pepper.UI
         private readonly Frame navigationFrame;
         private List<BodyFrameWrapper> _recordedBodyFrames = new List<BodyFrameWrapper>();
         private bool _recordBodyFrames = false;
+        private PathNameGenerator generator = new PathNameGenerator();
 
         public RecordPage(Frame navigationFrame)
         {
             InitializeComponent();
+            generator.CreateFolder();
             this.rewindPage = new RewindPage(navigationFrame);
             this.navigationFrame = navigationFrame;
 
@@ -40,14 +43,17 @@ namespace Kinect_ing_Pepper.UI
             cbxCameraType.ItemsSource = Enum.GetValues(typeof(ECameraType)).Cast<ECameraType>();
             cbxCameraType.SelectedIndex = 0;
         }
-
+        //System.Diagnostics.Stopwatch z = System.Diagnostics.Stopwatch.StartNew();
+        
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
+            
             FrameParser frameParser = new FrameParser();
             MultiSourceFrame frame = e.FrameReference.AcquireFrame();
 
             switch (_selectedCamera)
             {
+
                 case ECameraType.Color:
                     // Color
                     using (ColorFrame colorFrame = frame.ColorFrameReference.AcquireFrame())
@@ -55,7 +61,9 @@ namespace Kinect_ing_Pepper.UI
                         if (colorFrame != null)
                         {
                             bodyViewer.UpdateFrameCounter();
-                            bodyViewer.KinectImage = frameParser.ParseToBitmap(colorFrame);
+                            WriteableBitmap wb = frameParser.ParseToBitmap(colorFrame);
+                            bodyViewer.KinectImage = wb;
+                            MediaSink.General.RGBToBuf(ref wb);
                         }
                     }
                     break;
@@ -65,6 +73,8 @@ namespace Kinect_ing_Pepper.UI
                     {
                         if (depthFrame != null)
                         {
+
+                            MediaSink.General.DepthToBuf(depthFrame);
                             bodyViewer.UpdateFrameCounter();
                             bodyViewer.KinectImage = frameParser.ParseToBitmap(depthFrame);
                         }
@@ -83,6 +93,7 @@ namespace Kinect_ing_Pepper.UI
                 default:
                     break;
             }
+        
 
             using (BodyFrame bodyFrame = frame.BodyFrameReference.AcquireFrame())
             {
@@ -124,7 +135,26 @@ namespace Kinect_ing_Pepper.UI
 
         private void startRecordingButton_Click(object sender, RoutedEventArgs e)
         {
+            if (cbxCameraType.SelectedIndex == 0)
+            {
+                MediaSink.RGBMediaSink.SetPath(generator.CreateFilePathName("RGB").ToArray());
+                MediaSink.RGBMediaSink.Start();
+                cbxCameraType.IsEnabled = false;
+            }
+            if (cbxCameraType.SelectedIndex == 1)
+            {
+                string pathName = generator.CreateFilePathName("Depth");
+                MediaSink.DepthMediaSink.SetPath(pathName.ToArray());
+                MediaSink.DepthMediaSink.Start();
+                cbxCameraType.IsEnabled = false;
+            }
+                                    
             _recordBodyFrames = true;
+        }
+
+        private void newPersonButton_Click(object sender, RoutedEventArgs e)
+        {
+            generator.CreateFolder();
         }
 
         private void stopRecordingButton_Click(object sender, RoutedEventArgs e)
@@ -134,13 +164,15 @@ namespace Kinect_ing_Pepper.UI
             if (_recordedBodyFrames.Any())
             {
                 _recordBodyFrames = false;
-                PersistFrames.Instance.SerializeToXML(_recordedBodyFrames, @"C:\Users\Hans\Documents\Kinect Data\BodyFrames " +
+                PersistFrames.Instance.SerializeToXML(_recordedBodyFrames, generator.folderPathName +"/"+
                     dateTime.ToShortDateString() + " " + dateTime.ToLongTimeString().Replace(":", " ") + ".xml");
 
                 _recordedBodyFrames = new List<BodyFrameWrapper>();
             }
-
-            List<BodyFrameWrapper> framesFromDisk = PersistFrames.Instance.DeserializeFromXML(@"C:\Users\Hans\Documents\Kinect Data\XmlTest.xml");
+            cbxCameraType.IsEnabled = true;
+            MediaSink.RGBMediaSink.Stop();
+            MediaSink.DepthMediaSink.Stop();
+            List<BodyFrameWrapper> framesFromDisk = PersistFrames.Instance.DeserializeFromXML(generator.folderPathName + "/XmlTest.xml");
         }
 
         private void navigateToRewindPage_Click(object sender, RoutedEventArgs e)
