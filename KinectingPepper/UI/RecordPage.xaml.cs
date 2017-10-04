@@ -48,8 +48,13 @@ namespace Kinect_ing_Pepper.UI
                 _reader = KinectHelper.Instance.KinectSensor.OpenMultiSourceFrameReader(FrameSourceTypes.Color | FrameSourceTypes.Depth | FrameSourceTypes.Infrared | FrameSourceTypes.Body);
                 _reader.MultiSourceFrameArrived += Reader_MultiSourceFrameArrived;
             }
-        }
 
+            cbxCameraType.ItemsSource = Enum.GetValues(typeof(ECameraType)).Cast<ECameraType>();
+            cbxCameraType.SelectedIndex = 0;
+            btnStartRecording.IsEnabled = true;
+            btnStopRecording.IsEnabled = false;
+        }
+        
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
             
@@ -185,6 +190,8 @@ namespace Kinect_ing_Pepper.UI
             cbxCameraType.IsEnabled = true;
             MediaSink.RGBMediaSink.Stop();
             MediaSink.DepthMediaSink.Stop();
+            btnStartRecording.IsEnabled = false;
+            btnStopRecording.IsEnabled = true;
             List<BodyFrameWrapper> framesFromDisk = PersistFrames.Instance.DeserializeFromXML(generator.folderPathName + "/XmlTest.xml");
         }
 
