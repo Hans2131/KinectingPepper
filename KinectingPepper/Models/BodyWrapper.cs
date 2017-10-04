@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Xml.Serialization;
 using System.Numerics;
+using System.Diagnostics;
 
 namespace Kinect_ing_Pepper.Models
 {
@@ -60,14 +61,12 @@ namespace Kinect_ing_Pepper.Models
 
             Joints = body.Joints.Select(x => new JointWrapper(x.Value)).ToList();
             Joints.ForEach(x => x.Orientation = ToVector4(body.JointOrientations[x.JointType]));
-            //_jointsDictionary = body.Joints.Select(x => new JointWrapper(x.Value)).ToDictionary(x => x.JointType);
-            //_jointsDictionary.ToList().ForEach(x => x.Value.Orientation = ToVector4(body.JointOrientations[x.Key]));
+        }
 
-            System.Numerics.Vector4 ToVector4(JointOrientation jointOrientation)
-            {
-                return new System.Numerics.Vector4(jointOrientation.Orientation.X, jointOrientation.Orientation.Y,
-                                                    jointOrientation.Orientation.Z, jointOrientation.Orientation.W);
-            }
+        private System.Numerics.Vector4 ToVector4(JointOrientation jointOrientation)
+        {
+            return new System.Numerics.Vector4(jointOrientation.Orientation.X, jointOrientation.Orientation.Y,
+                                                jointOrientation.Orientation.Z, jointOrientation.Orientation.W);
         }
     }
 }

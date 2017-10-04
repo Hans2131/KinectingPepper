@@ -6,9 +6,9 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Kinect_ing_Pepper.Business
+namespace Kinect_ing_Pepper.Models
 {
-    class JointRow
+    public class JointRow
     {
         public int frameNum;
         public string jointName;
