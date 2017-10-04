@@ -128,7 +128,6 @@ namespace Kinect_ing_Pepper.UI
         private void stopRecordingButton_Click(object sender, RoutedEventArgs e)
         {
             DateTime dateTime = DateTime.Now;
-
             if (_recordedBodyFrames.Any())
             {
                 _recordBodyFrames = false;
@@ -137,8 +136,6 @@ namespace Kinect_ing_Pepper.UI
 
                 _recordedBodyFrames = new List<BodyFrameWrapper>();
             }
-
-            List<BodyFrameWrapper> framesFromDisk = PersistFrames.Instance.DeserializeFromXML(@"C:\Users\Hans\Documents\Kinect Data\XmlTest.xml");
         }
 
         private void navigateToRewindPage_Click(object sender, RoutedEventArgs e)
