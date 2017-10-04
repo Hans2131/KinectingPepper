@@ -114,7 +114,7 @@ namespace Kinect_ing_Pepper.UI
         {
             _reader.Dispose();
 
-            KinectHelper.Instance.StopKinect();
+            //KinectHelper.Instance.StopKinect();
         }
 
         private void cbxCameraType_SelectionChanged(object sender, SelectionChangedEventArgs e)

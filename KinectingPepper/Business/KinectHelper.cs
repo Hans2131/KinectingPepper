@@ -38,7 +38,9 @@ namespace Kinect_ing_Pepper.Business
         {
             get
             {
-                if (_coordinateMapper == null && KinectSensor != null) _coordinateMapper = KinectSensor.CoordinateMapper;
+                //if (_coordinateMapper == null && KinectSensor != null) _coordinateMapper = KinectSensor.CoordinateMapper;
+                KinectSensor.CoordinateMapper
+
                 return _coordinateMapper;
             }
         }
