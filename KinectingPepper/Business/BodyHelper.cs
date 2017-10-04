@@ -4,6 +4,7 @@ using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -95,6 +96,10 @@ namespace Kinect_ing_Pepper.Business
             boneList.Add(new Tuple<JointType, JointType>(JointType.SpineMid, JointType.SpineShoulder));
             boneList.Add(new Tuple<JointType, JointType>(JointType.SpineShoulder, JointType.ShoulderRight));
             boneList.Add(new Tuple<JointType, JointType>(JointType.SpineShoulder, JointType.ShoulderLeft));
+            boneList.Add(new Tuple<JointType, JointType>(JointType.SpineShoulder, JointType.Neck));
+
+            //Head
+            boneList.Add(new Tuple<JointType, JointType>(JointType.Neck, JointType.Head));
 
             //Right arm
             boneList.Add(new Tuple<JointType, JointType>(JointType.ShoulderRight, JointType.ElbowRight));
@@ -113,18 +118,23 @@ namespace Kinect_ing_Pepper.Business
             return boneList;
         }
 
-        public Point MapCameraToSpace(CameraSpacePoint point, ECameraType cameraType)
+        public Point MapCameraToSpace(Vector3 position, ECameraType cameraType)
         {
+            CameraSpacePoint jointPosition = new CameraSpacePoint();
+            jointPosition.X = position.X;
+            jointPosition.Y = position.Y;
+            jointPosition.Z = position.Z;
+
             switch (cameraType)
             {
                 case ECameraType.Color:
-                    ColorSpacePoint colorPoint = KinectHelper.Instance.CoordinateMapper.MapCameraPointToColorSpace(point);
+                    ColorSpacePoint colorPoint = KinectHelper.Instance.CoordinateMapper.MapCameraPointToColorSpace(jointPosition);
                     return new Point(float.IsInfinity(colorPoint.X) ? 0.0 : colorPoint.X, float.IsInfinity(colorPoint.X) ? 0.0 : colorPoint.Y);
                 case ECameraType.Depth:
-                    DepthSpacePoint depthPoint = KinectHelper.Instance.CoordinateMapper.MapCameraPointToDepthSpace(point);
+                    DepthSpacePoint depthPoint = KinectHelper.Instance.CoordinateMapper.MapCameraPointToDepthSpace(jointPosition);
                     return new Point(float.IsInfinity(depthPoint.X) ? 0.0 : depthPoint.X, float.IsInfinity(depthPoint.X) ? 0.0 : depthPoint.Y);
                 case ECameraType.Infrared:
-                    DepthSpacePoint depthPoint1 = KinectHelper.Instance.CoordinateMapper.MapCameraPointToDepthSpace(point);
+                    DepthSpacePoint depthPoint1 = KinectHelper.Instance.CoordinateMapper.MapCameraPointToDepthSpace(jointPosition);
                     return new Point(float.IsInfinity(depthPoint1.X) ? 0.0 : depthPoint1.X, float.IsInfinity(depthPoint1.X) ? 0.0 : depthPoint1.Y);
                 default:
                     return new Point();

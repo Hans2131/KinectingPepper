@@ -77,6 +77,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -96,14 +97,21 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Business\FrameParser.cs" />
+    <Compile Include="Business\PersistFrames.cs" />
     <Compile Include="Business\KinectHelper.cs" />
     <Compile Include="Business\BodyHelper.cs" />
     <Compile Include="Business\PathNameGenerator.cs" />
     <Compile Include="Enums\ECameraTypes.cs" />
     <Compile Include="MediaSink\MediaSink.cs" />
     <Compile Include="Models\BodyDrawing.cs" />
+    <Compile Include="Models\BodyFrameWrapper.cs" />
+    <Compile Include="Models\JointWrapper.cs" />
+    <Compile Include="Models\BodyWrapper.cs" />
     <Compile Include="UI\BodyViewer.xaml.cs">
       <DependentUpon>BodyViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\RewindPage.xaml.cs">
+      <DependentUpon>RewindPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\RecordPage.xaml.cs">
       <DependentUpon>RecordPage.xaml</DependentUpon>
@@ -111,6 +119,10 @@
     <Page Include="UI\BodyViewer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\RewindPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="UI\RecordPage.xaml">
       <SubType>Designer</SubType>
@@ -170,6 +182,8 @@
   <ItemGroup>
     <Content Include="Extensions\Depth_SinkWriter_CLI.dll" />
     <Content Include="Extensions\RGB_SinkWriter_CLI.dll" />
+    <Folder Include="Extensions\" />
+    <Folder Include="Serialization\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
