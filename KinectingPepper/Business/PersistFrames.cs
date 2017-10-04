@@ -35,12 +35,16 @@ namespace Kinect_ing_Pepper.Business
 
         public List<BodyFrameWrapper> DeserializeFromXML(string filePath)
         {
-            XmlSerializer deserializer = new XmlSerializer(typeof(List<BodyFrameWrapper>));
-            TextReader reader = new StreamReader(filePath);
-            List<BodyFrameWrapper> bodyFrames = (List<BodyFrameWrapper>)deserializer.Deserialize(reader); ;
-            reader.Close();
+            if (File.Exists(filePath))
+            {
+                XmlSerializer deserializer = new XmlSerializer(typeof(List<BodyFrameWrapper>));
+                TextReader reader = new StreamReader(filePath);
+                List<BodyFrameWrapper> bodyFrames = (List<BodyFrameWrapper>)deserializer.Deserialize(reader); ;
+                reader.Close();
 
-            return bodyFrames;
+                return bodyFrames;
+            }
+            return null;
         }
     }
 }

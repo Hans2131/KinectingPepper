@@ -18,30 +18,18 @@ namespace Kinect_ing_Pepper.Models
         public bool IsTracked;
         public ulong TrackingId;
 
-        private List<JointWrapper> _joints;
         //XML serializer can't serialize Dictionary, this property returns the dictionary as list
-        public List<JointWrapper> Joints
-        {
-            get
-            {
-                return _joints;
-            }
-            set
-            {
-                _joints = value;
-            }
-        }
+        public List<JointWrapper> Joints;
 
         private Dictionary<JointType, JointWrapper> _jointsDictionary;
-
         [XmlIgnore]
         public Dictionary<JointType, JointWrapper> JointsDictionary
         {
             get
             {
-                if (_joints != null && _joints.Any() && _jointsDictionary == null)
+                if (Joints != null && Joints.Any() && _jointsDictionary == null)
                 {
-                    _jointsDictionary = _joints.ToDictionary(x => x.JointType);
+                    _jointsDictionary = Joints.ToDictionary(x => x.JointType);
                 }
 
                 return _jointsDictionary;

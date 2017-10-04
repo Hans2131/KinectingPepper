@@ -96,6 +96,10 @@ namespace Kinect_ing_Pepper.Business
             boneList.Add(new Tuple<JointType, JointType>(JointType.SpineMid, JointType.SpineShoulder));
             boneList.Add(new Tuple<JointType, JointType>(JointType.SpineShoulder, JointType.ShoulderRight));
             boneList.Add(new Tuple<JointType, JointType>(JointType.SpineShoulder, JointType.ShoulderLeft));
+            boneList.Add(new Tuple<JointType, JointType>(JointType.SpineShoulder, JointType.Neck));
+
+            //Head
+            boneList.Add(new Tuple<JointType, JointType>(JointType.Neck, JointType.Head));
 
             //Right arm
             boneList.Add(new Tuple<JointType, JointType>(JointType.ShoulderRight, JointType.ElbowRight));
