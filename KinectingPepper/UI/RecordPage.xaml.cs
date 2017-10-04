@@ -38,7 +38,6 @@ namespace Kinect_ing_Pepper.UI
             cbxCameraType.ItemsSource = Enum.GetValues(typeof(ECameraType)).Cast<ECameraType>();
             cbxCameraType.SelectedIndex = 0;
         }
-        //System.Diagnostics.Stopwatch z = System.Diagnostics.Stopwatch.StartNew();
         
         private void RestartKinect()
         {
@@ -123,14 +122,7 @@ namespace Kinect_ing_Pepper.UI
                 }
             }
         }
-
-        private void Page_Unloaded(object sender, RoutedEventArgs e)
-        {
-            //bodyViewer.Clear();
-            //_reader.Dispose();
-
-            //KinectHelper.Instance.StopKinect();
-        }
+        
 
         private void cbxCameraType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
