@@ -42,6 +42,8 @@ namespace Kinect_ing_Pepper.UI
 
             cbxCameraType.ItemsSource = Enum.GetValues(typeof(ECameraType)).Cast<ECameraType>();
             cbxCameraType.SelectedIndex = 0;
+            btnStartRecording.IsEnabled = true;
+            btnStopRecording.IsEnabled = false;
         }
         //System.Diagnostics.Stopwatch z = System.Diagnostics.Stopwatch.StartNew();
         
@@ -150,6 +152,9 @@ namespace Kinect_ing_Pepper.UI
             }
                                     
             _recordBodyFrames = true;
+            btnStartRecording.IsEnabled = false;
+            btnStopRecording.IsEnabled = true;
+
         }
 
         private void newPersonButton_Click(object sender, RoutedEventArgs e)
@@ -172,6 +177,8 @@ namespace Kinect_ing_Pepper.UI
             cbxCameraType.IsEnabled = true;
             MediaSink.RGBMediaSink.Stop();
             MediaSink.DepthMediaSink.Stop();
+            btnStartRecording.IsEnabled = false;
+            btnStopRecording.IsEnabled = true;
             List<BodyFrameWrapper> framesFromDisk = PersistFrames.Instance.DeserializeFromXML(generator.folderPathName + "/XmlTest.xml");
         }
 
