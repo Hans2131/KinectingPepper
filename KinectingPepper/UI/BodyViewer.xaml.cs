@@ -117,6 +117,12 @@ namespace Kinect_ing_Pepper.UI
             }
         }
 
+        public void Clear()
+        {
+            canvasSkeleton.Children.Clear();
+            KinectImage = null;
+        }
+
         private void RenderBody(BodyWrapper body, ECameraType cameraType)
         {
             BodyDrawing bodyDrawing = BodyHelper.Instance.BodyDrawings.Where(x => x.TrackingId == body.TrackingId).FirstOrDefault();
