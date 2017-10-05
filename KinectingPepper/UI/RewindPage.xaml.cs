@@ -19,10 +19,11 @@ namespace Kinect_ing_Pepper.UI
     {
         private ECameraType _selectedCamera = ECameraType.Color;
         private readonly Frame navigationFrame;
-        private int _currentFrameNumber = 50;
+        private int _currentFrameNumber = 0;
 
         private List<BodyFrameWrapper> _framesFromDisk;
         private bool _playBackFrames = false;
+        private DateTime _timeLastFrameRender = DateTime.MinValue;
 
         public RewindPage(Frame navigationFrame)
         {
@@ -42,42 +43,59 @@ namespace Kinect_ing_Pepper.UI
 
         private void selectFile_Click(object sender, RoutedEventArgs e)
         {
-            _framesFromDisk = PersistFrames.Instance.DeserializeFromXML(@"C:\Users\Hans\Documents\Kinect Data\BodyFrames 3-10-2017 15 09 01 Arm sidewards.xml");
+            string filePath = @"C:\Users\Hans\Documents\Kinect Data\5-10-2017_09_01_38 P01\5-10-2017 09 03 27.xml";
+            _framesFromDisk = PersistFrames.Instance.DeserializeFromXML(filePath);
             _playBackFrames = true;
 
-            CompositionTarget.Rendering += CompositionTarget_Rendering;
+            slrFrameProgress.Maximum = _framesFromDisk.Count;
 
-            //bodyViewer.TestDrawLine();
+            CompositionTarget.Rendering += CompositionTarget_Rendering;
         }
 
         private void CompositionTarget_Rendering(object sender, EventArgs e)
         {
             if (_playBackFrames)
             {
-                KinectHelper.Instance.TryStartKinect();
+                if (_currentFrameNumber == _framesFromDisk.Count - 1)
+                {
+                    //_playBackFrames = false;
+                    _currentFrameNumber = 0;
+                    _timeLastFrameRender = DateTime.MinValue;
+                }
+                else
+                {
+                    if (_timeLastFrameRender == DateTime.MinValue)
+                    {
+                        _timeLastFrameRender = DateTime.Now;
+                        bodyViewer.RenderBodies(_framesFromDisk[_currentFrameNumber].TrackedBodies, ECameraType.Color);
+                    }
+                    else
+                    {
+                        TimeSpan timePast = DateTime.Now - _timeLastFrameRender;
+                        TimeSpan expectedTimeSpan = _framesFromDisk[_currentFrameNumber + 1].RelativeTime - _framesFromDisk[_currentFrameNumber].RelativeTime;
 
-                BodyFrameWrapper currentBodyFrame = _framesFromDisk[_currentFrameNumber];
-                bodyViewer.RenderBodies(currentBodyFrame.TrackedBodies, ECameraType.Color);
-                _playBackFrames = false;
-            }
-
-            if(_currentFrameNumber == _framesFromDisk.Count - 1)
-            {
-                _playBackFrames = false;
-            } else
-            {
-
+                        if (timePast >= expectedTimeSpan)
+                        {
+                            _currentFrameNumber++;
+                            _timeLastFrameRender = DateTime.Now;
+                            _timeLastFrameRender += timePast - expectedTimeSpan;
+                            slrFrameProgress.Value = _currentFrameNumber;
+                            bodyViewer.RenderBodies(_framesFromDisk[_currentFrameNumber].TrackedBodies, ECameraType.Color);
+                        }
+                    }
+                }
             }
         }
 
         private void resetPlayer_Click(object sender, RoutedEventArgs e)
         {
-            CompositionTarget.Rendering -= CompositionTarget_Rendering;
-            _playBackFrames = false;
+            //CompositionTarget.Rendering -= CompositionTarget_Rendering;
+            //_playBackFrames = false;
+            _currentFrameNumber = 0;
         }
         private void pausePlayer_Click(object sender, RoutedEventArgs e)
         {
-
+            _playBackFrames = false;
         }
 
         private void navigateToRecordPage_Click(object sender, RoutedEventArgs e)

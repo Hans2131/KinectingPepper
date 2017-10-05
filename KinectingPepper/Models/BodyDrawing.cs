@@ -28,7 +28,7 @@ namespace Kinect_ing_Pepper.Models
 
         public ulong TrackingId { get; set; }
 
-        public Dictionary<JointType, Point> JointPoints { get; set; }
+        //public Dictionary<JointType, Point> JointPoints { get; set; }
 
         public Dictionary<JointType, Ellipse> JointEllipses { get; set; }
 
@@ -37,16 +37,12 @@ namespace Kinect_ing_Pepper.Models
         public BodyDrawing(BodyWrapper body, ECameraType cameraType)
         {
             TrackingId = body.TrackingId;
-
-            JointPoints = new Dictionary<JointType, Point>();
+            
             JointEllipses = new Dictionary<JointType, Ellipse>();
             BoneLines = new Dictionary<Tuple<JointType, JointType>, Line>();
 
             foreach (KeyValuePair<JointType, JointWrapper> joint in body.JointsDictionary)
             {
-                Point point = BodyHelper.Instance.MapCameraToSpace(joint.Value.Position, cameraType);
-                JointPoints.Add(joint.Key, point);
-
                 Ellipse ellipse = new Ellipse
                 {
                     Width = _jointRadius * 2,
@@ -56,8 +52,8 @@ namespace Kinect_ing_Pepper.Models
                     Stroke = _ellipseBrush
                 };
 
-                Canvas.SetLeft(ellipse, point.X - _jointRadius);
-                Canvas.SetTop(ellipse, point.Y - _jointRadius);
+                Canvas.SetLeft(ellipse, joint.Value.GetCameraPoint(cameraType).X - _jointRadius);
+                Canvas.SetTop(ellipse, joint.Value.GetCameraPoint(cameraType).Y - _jointRadius);
 
                 JointEllipses.Add(joint.Key, ellipse);
             }
@@ -68,10 +64,10 @@ namespace Kinect_ing_Pepper.Models
                 {
                     StrokeThickness = _boneLineThickness,
                     Stroke = _boneBrush,
-                    X1 = JointPoints[bone.Item1].X,
-                    Y1 = JointPoints[bone.Item1].Y,
-                    X2 = JointPoints[bone.Item2].X,
-                    Y2 = JointPoints[bone.Item2].Y
+                    X1 = body.JointsDictionary[bone.Item1].GetCameraPoint(cameraType).X,
+                    Y1 = body.JointsDictionary[bone.Item1].GetCameraPoint(cameraType).Y,
+                    X2 = body.JointsDictionary[bone.Item2].GetCameraPoint(cameraType).X,
+                    Y2 = body.JointsDictionary[bone.Item2].GetCameraPoint(cameraType).Y
                 };
 
                 BoneLines.Add(bone, line);
@@ -82,13 +78,11 @@ namespace Kinect_ing_Pepper.Models
         public void Update(BodyWrapper body, ECameraType cameraType)
         {
             foreach (KeyValuePair<JointType, JointWrapper> joint in body.JointsDictionary)
-            {
-                JointPoints[joint.Key] = BodyHelper.Instance.MapCameraToSpace(joint.Value.Position, cameraType);
-
+            {               
                 Ellipse ellipse = JointEllipses[joint.Key];
 
-                Canvas.SetLeft(ellipse, JointPoints[joint.Key].X - _jointRadius);
-                Canvas.SetTop(ellipse, JointPoints[joint.Key].Y - _jointRadius);
+                Canvas.SetLeft(ellipse, joint.Value.GetCameraPoint(cameraType).X - _jointRadius);
+                Canvas.SetTop(ellipse, joint.Value.GetCameraPoint(cameraType).Y - _jointRadius);
 
                 if (joint.Value.TrackingState == TrackingState.Inferred)
                 {
@@ -113,10 +107,10 @@ namespace Kinect_ing_Pepper.Models
             foreach (Tuple<JointType, JointType> bone in BodyHelper.Instance.BodyHierarchy)
             {
                 Line line = BoneLines[bone];
-                line.X1 = JointPoints[bone.Item1].X;
-                line.Y1 = JointPoints[bone.Item1].Y;
-                line.X2 = JointPoints[bone.Item2].X;
-                line.Y2 = JointPoints[bone.Item2].Y;
+                line.X1 = body.JointsDictionary[bone.Item1].GetCameraPoint(cameraType).X;
+                line.Y1 = body.JointsDictionary[bone.Item1].GetCameraPoint(cameraType).Y;
+                line.X2 = body.JointsDictionary[bone.Item2].GetCameraPoint(cameraType).X;
+                line.Y2 = body.JointsDictionary[bone.Item2].GetCameraPoint(cameraType).Y;
 
                 if (body.JointsDictionary[bone.Item1].TrackingState == TrackingState.Inferred || body.JointsDictionary[bone.Item2].TrackingState == TrackingState.Inferred)
                 {
