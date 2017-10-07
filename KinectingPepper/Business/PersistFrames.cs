@@ -1,4 +1,4 @@
-﻿using Kinect_ing_Pepper.Models;
+﻿//using Kinect_ing_Pepper.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,7 +23,7 @@ namespace Kinect_ing_Pepper.Business
                 return _instance;
             }
         }
-
+        /*
         public void SerializeToXML(List<BodyFrameWrapper> bodyFrames, string filePath)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(List<BodyFrameWrapper>));
@@ -45,6 +45,6 @@ namespace Kinect_ing_Pepper.Business
                 return bodyFrames;
             }
             return null;
-        }
+        }*/
     }
 }

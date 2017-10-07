@@ -103,10 +103,6 @@
     <Compile Include="Business\PathNameGenerator.cs" />
     <Compile Include="Enums\ECameraTypes.cs" />
     <Compile Include="MediaSink\MediaSink.cs" />
-    <Compile Include="Models\BodyDrawing.cs" />
-    <Compile Include="Models\BodyFrameWrapper.cs" />
-    <Compile Include="Models\JointWrapper.cs" />
-    <Compile Include="Models\BodyWrapper.cs" />
     <Compile Include="UI\BodyViewer.xaml.cs">
       <DependentUpon>BodyViewer.xaml</DependentUpon>
     </Compile>
@@ -181,6 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Extensions\" />
+    <Folder Include="Models\" />
     <Folder Include="Serialization\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

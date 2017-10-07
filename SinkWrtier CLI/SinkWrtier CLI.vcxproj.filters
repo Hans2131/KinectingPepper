@@ -15,14 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Sink.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SinkWrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Sink.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

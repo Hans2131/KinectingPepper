@@ -6,259 +6,175 @@ using Microsoft.Kinect;
 
 namespace Kinect_ing_Pepper.MediaSink
 {
-    public unsafe class General
-    {        
-        public static bool RGBToBuf(ref System.Windows.Media.Imaging.WriteableBitmap frame)
-        {                        
-            if (frame == null || MediaSink.RGBMediaSink.processing == false) return true;            
-            UInt32[] buf = new UInt32[1080 * 1920];
-            byte* P = (byte*)frame.BackBuffer;            
-            UInt32 x, y, z, q;
-            for (int i = 0; i < 1080 * 1920; i++)
-            {
-                x = *P;P++;
-                y = *P;P++;
-                z = *P;P++;
-                q = *P;P++;
-                buf[i] = ((q << 24) + (z<< 16) + (y << 8) + (x));                
-            }            
-            return MediaSink.RGBMediaSink.ProcesData(ref buf);
-        }
-
-        public static bool DepthToBuf(DepthFrame frame)
-        {
-            if (frame == null) return true;
-            if (!MediaSink.DepthMediaSink.processing) return true;
-            UInt32[] b = new UInt32[512 * 424];
-            ushort[] B = new ushort[512 * 424];
-            frame.CopyFrameDataToArray(B);
-            for (int i = 0; i < 512 * 424; i++)
-                b[i] = B[i];
-            B = null;
-            return MediaSink.DepthMediaSink.ProcesData(ref b);           
-        }
-    }
-
-    //test the time to process 1 minute of data
-    public unsafe class Tester
-    {        
-        public unsafe static void Test2()
-        {
-            MediaSink.DepthMediaSink.Start();
-            MediaSink.RGBMediaSink.Start();
-
-
-            System.Diagnostics.Stopwatch stamp = System.Diagnostics.Stopwatch.StartNew();
-            int frames = 0;
-            System.Diagnostics.Stopwatch z = System.Diagnostics.Stopwatch.StartNew();
-            z.Start();
-            System.Diagnostics.Stopwatch z2 = System.Diagnostics.Stopwatch.StartNew();
-            z2.Start();
-            UInt32[] Buf = new UInt32[1920 * 1080 + 1];
-            UInt32[] Buf2 = new UInt32[1920 * 1080 + 1];
-            for (int i = 0; i < 1920 * 1080; i++)
-            {
-                Buf[i] = 0x00FF0000;
-                Buf2[i] = 0x000FF000;
-            }
-            while (frames < 20 * 60 * 1)
-            {
-                stamp.Reset();
-                stamp.Start();
-                MediaSink.RGBMediaSink.ProcesData(ref Buf);
-                MediaSink.DepthMediaSink.ProcesData(ref Buf2);
-                //Buf = null; Buf2 = null;             
-                frames++;
-                while (stamp.ElapsedMilliseconds < (48)) ;
-
-            }
-            z2.Stop();
-            MediaSink.DepthMediaSink.Stop();
-            MediaSink.RGBMediaSink.Stop();
-            z.Stop();
-            Console.WriteLine("1 minute of footage processed in: {0:N} || {1:N} seconds total.", z2.ElapsedMilliseconds, z.ElapsedMilliseconds);
-            return;
-        }
-    }
     
-     /*class implemented for saving data to mp4 file
-     * Current Directory for savefile is C:\images\Pepper\[RGB/Depth]Out.mp4
-     * Input is RGB32 as X8 R8 G8 B8
-     * !!! Data Processing will go from bottom-left to top-right !!!
-     */
+    /*class implemented for saving data to mp4 file
+    * Current Directory for savefile is C:\images\Pepper\[RGB/Depth]Out.mp4
+    * Input is RGB32 as X8 R8 G8 B8
+    * !!! Data Processing will go from bottom-left to top-right !!!
+    */
     public unsafe class RGBMediaSink
-    {        
-        private static System.Collections.Queue bufferlist = new System.Collections.Queue();
-        public static bool processing=false;
-        private static bool writeractive = false;
-        //Call to process data to the buffer - DO CALL
-        public static bool ProcesData(ref UInt32[] data) {
-            if (!processing) return true;            
-            bufferlist.Enqueue(data);
-            return false;
-        }
-        //thread to write data to file - DONT CALL
-        private static void Writer()
-        {
-            writeractive = true;
-            UInt32** ppBuf = MediaSink.RGBMediaSink.GetBuffer();
-            UInt32* pBuf; 
-            while (processing)
-            {
-                while (bufferlist.Count > 0)
-                {
-                    UInt32 buffer;
-                    UInt32[] buf = (UInt32[])bufferlist.Dequeue();
-                    for(int i = 0,j=1920*1079; i < 1920 * 1080 / 2;i++)
-                    {
-                        buffer = buf[i];
-                        buf[i] = buf[j];
-                        buf[j] = buffer;
-                        j++;
-                        if(j%1920 == 0)
-                        {
-                            j -= (1920 * 2);
-                        }
+    {
 
+        const int WIDTH = 1920;
+        const int HEIGHT = 1080;
+        const int NEWWIDTH = 640;
+        const int NEWHEIGHT = 480;        
+        const int COLORS = 3;
+        const int Commpresstride = (HEIGHT) / (NEWHEIGHT);
+        const int skiptonext = HEIGHT * COLORS - ((HEIGHT) % (Commpresstride));
+        const int Commpresheight = (WIDTH) / (NEWWIDTH);
+        const int extraframe = NEWWIDTH / ((WIDTH % NEWWIDTH) + 1);
+        const int TOTALI = NEWHEIGHT * NEWWIDTH * COLORS;
+        const int extendx = (Commpresstride) * COLORS;
+        const int extendy1 = (Commpresheight + 1) * HEIGHT * COLORS;
+        const int extendy = (Commpresheight) * HEIGHT * COLORS;
+
+        static char[] buffer = new char[NEWWIDTH * NEWHEIGHT * COLORS + 1];
+
+        static public void ProcessBitmap(IntPtr b)
+        {
+            char* buf = (char*)b;
+            for (int i = 0, j = 0, t = 0, y = 0; i < TOTALI; i += 3)
+            {
+                buffer[i + 0] = buf[j + 3 + y];  //R
+                buffer[i + 1] = buf[j + 2 + y];  //G
+                buffer[i + 2] = buf[j + 1 + y];  //B
+                j += extendx;
+                if (j > skiptonext)
+                {
+                    t++;
+                    if (t == extraframe)
+                    {
+                        j = 0; y += extendy1; t = 0;
                     }
-                    fixed (UInt32* b = &buf[0])
-                        pBuf = b;
-                    *ppBuf = pBuf;
-                    MediaSink.RGBMediaSink.WriteFrame();
-                    buf = null;
+                    else
+                    {
+                        j = 0;
+                        y += extendy;
+                    }
                 }
             }
-            writeractive = false;
-            pBuf = null;
-            ppBuf = null;
-            
-        }
-        //call to start the writer | call before processdata
-        public static void Start()
-        {
-            if (processing) return;            
-            processing = true;
-            init();
-            System.Threading.Thread t = new System.Threading.Thread(Writer);
-            t.Start();
-        }
-        //call to stop the writer | proper saving of files after both depth+rgb are stopped - DO CALL
-        public static void Stop()
-        {
-            if (!processing) return;
-            processing = false;
-            while (writeractive) ;
-            if (MediaSink.DepthMediaSink.processing)
-                return;
-            ShutDown();
-            MediaSink.DepthMediaSink.ShutDown();
+            fixed(char* x = &buffer[0])
+            Process(x);
         }
 
+        static public bool IsRunning()
+        {
+            return running;
+        }
+        
+        static private bool running = false;
+
+        static public void Start()
+        {
+            running = true;
+            init();
+        }
+        static public void Stop()
+        {
+            running = false;
+            ShutDown();
+        }
         //Call to start the SinkWriter
-        [DllImport("RGB_SinkWriter_CLI.dll", EntryPoint = "Init")]
+        [DllImport("SinkWriter_CLI.dll", EntryPoint = "RGBInit")]
         private static extern void init();
         //Call to finish and close SinkWriter
-        [DllImport("RGB_SinkWriter_CLI.dll", EntryPoint = "Shutdown")]
-        public static extern void ShutDown();
+        [DllImport("SinkWriter_CLI.dll", EntryPoint = "RGBShutdown")]
+        private static extern void ShutDown();
         //returns true if SinkWriter is active
-        [DllImport("RGB_SinkWriter_CLI.dll", EntryPoint = "IsActive")]
+        [DllImport("SinkWriter_CLI.dll", EntryPoint = "RGBIsActive")]
         public static extern bool IsActive();
-        //returns location of the FrameBuffer
-        [DllImport("RGB_SinkWriter_CLI.dll", EntryPoint = "GetBuffer")]
-        public static extern UInt32** GetBuffer();
-        //Call to process the FrameBuffer, returns 0 on succes
-        [DllImport("RGB_SinkWriter_CLI.dll", EntryPoint = "WriteFrame")]
-        public static extern int WriteFrame();
-        [DllImport("RGB_SinkWriter_CLI.dll", EntryPoint = "SetPath")]
+        //process the given data
+        [DllImport("SinkWriter_CLI.dll", EntryPoint = "RGBProcess")]
+        private static extern void Process(char* buffer);        
+        [DllImport("SinkWriter_CLI.dll", EntryPoint = "RGBSetPath")]
         public static extern int SetPath(char[] path);
     }
 
-         
+
     public unsafe class DepthMediaSink
     {
-        private static System.Collections.Queue bufferlist = new System.Collections.Queue();
-        public static bool processing = false;
-        private static bool writeractive = false;
-        //Call to process data to the buffer - DO CALL
-        public static bool ProcesData(ref UInt32[] data)
-        {
-            if (!processing) return true;                                                            
-            bufferlist.Enqueue(data);
-            return false;
-        }
-        //thread to write data to file - DONT CALL
-        private static void Writer()
-        {
-            writeractive = true;
-            UInt32** ppBuf = MediaSink.DepthMediaSink.GetBuffer();
-            UInt32* pBuf;
-            while (processing)
-            {
-                while (bufferlist.Count > 0)
-                {
-                    UInt32[] buf = (UInt32[])bufferlist.Dequeue();
-                    UInt32 buffer;
-                    for (int i = 0, j = 512 * 421; i < 512 * 424 / 2; i++)
-                    {
-                        buffer = buf[i];
-                        buf[i] = buf[j];
-                        buf[j] = buffer;
-                        j++;
-                        if (j % 512 == 0)
-                        {
-                            j -= (512 * 2);
-                        }
+        const int NEWWIDTH = 640;
+        const int NEWHEIGHT = 480;
+        const int DEPTHWIDTH = 512;
+        const int DEPTHHEIGHT = 424;
+        const int AREA = NEWWIDTH * NEWHEIGHT;
+        const int Dextendx = (int)((double)(NEWWIDTH) / (NEWWIDTH - DEPTHWIDTH) + 0.5);
+        const int Dextendy = (int)((double)(NEWHEIGHT) / (NEWHEIGHT - DEPTHHEIGHT) + 0.5);
 
+        static char[]bufferdepth = new char[NEWHEIGHT*NEWWIDTH];
+        static UInt32* buff;
+
+        static public bool IsRunning()
+        {
+            return running;
+        }
+        static private bool running = false;
+        static public void Start()
+        {
+            running = true;
+            init();
+            buff = GetBuffer();
+        }
+        static public void Stop()
+        {
+            running = false;
+            ShutDown();
+        }
+
+        static public void ProcessBitmap(IntPtr b)
+        {
+            char* buffer = (char*)b;
+            int i = 0, j = 0, y = 0;
+            while (i < AREA)
+            {
+                for (int x = 0; x < NEWWIDTH; x++)
+                {
+                    bufferdepth[i] = buffer[j];
+                    j++; i++;
+                    if (j % (Dextendx - 1) == 0)
+                    {
+                        bufferdepth[i] = bufferdepth[i - 1];
+                        i++; x++;
                     }
-                    fixed (UInt32* b = &buf[0])
-                        pBuf = b;
-                    *ppBuf = pBuf;
-                    MediaSink.DepthMediaSink.WriteFrame();
-                    buf = null;
+                }
+                y++;
+                if (y % (Dextendy - 1) == 0)
+                {
+                    for (int x = 0; x < NEWWIDTH; x++, i++)
+                    {
+                        bufferdepth[i] = bufferdepth[i - NEWHEIGHT];
+                    }
+                    y++;
                 }
             }
-            writeractive = false;
-            pBuf = null;
-            ppBuf = null;
+            for(int I = 0,J=NEWWIDTH*(NEWHEIGHT-1); I <AREA; I++)
+            {
+                buff[I] = bufferdepth[J];
+                J++;
+                if (J % NEWWIDTH == 0)
+                    J -= NEWWIDTH * 2;
+            }
+            WriteFrame();
+        }    
 
-        }
-        //call to start the writer | call before processdata - DO CALL
-        public static void Start()
-        {
-            if (processing) return;
-            processing = true;
-            init();
-            System.Threading.Thread t = new System.Threading.Thread(Writer);
-            t.Start();
-        }
-        //call to stop the writer | proper saving of files after both depth+rgb are stopped  - DO CALL
-        public static void Stop()
-        {
-            if (!processing) return;
-            processing = false;
-            while (writeractive) ;
-            if (MediaSink.RGBMediaSink.processing)
-                return;
-            ShutDown();
-            MediaSink.RGBMediaSink.ShutDown();
-        }
 
         //Call to start the SinkWriter - DONT CALL
-        [DllImport("Depth_SinkWriter_CLI.dll", EntryPoint = "Init")]
+        [DllImport("SinkWriter_CLI.dll", EntryPoint = "DInit")]
         private static extern void init();
         //Call to finish and close SinkWriter - DONT CALL
-        [DllImport("Depth_SinkWriter_CLI.dll", EntryPoint = "Shutdown")]
+        [DllImport("SinkWriter_CLI.dll", EntryPoint = "DShutdown")]
         public static extern void ShutDown();
         //returns true if SinkWriter is active - DONT CALL
-        [DllImport("Depth_SinkWriter_CLI.dll", EntryPoint = "IsActive")]
+        [DllImport("SinkWriter_CLI.dll", EntryPoint = "DIsActive")]
         public static extern bool IsActive();
         //returns location of the FrameBuffer - DONT CALL
-        [DllImport("Depth_SinkWriter_CLI.dll", EntryPoint = "GetBuffer")]
-        public static extern UInt32** GetBuffer();
-        //Call to process the FrameBuffer, returns 0 on succes - DONT CALL
-        [DllImport("Depth_SinkWriter_CLI.dll", EntryPoint = "WriteFrame")]
+        [DllImport("SinkWriter_CLI.dll", EntryPoint = "DGetBuffer")]
+        public static extern UInt32* GetBuffer();
+        //Call to process the FrameBuffer, returns 0 on success
+        [DllImport("SinkWriter_CLI.dll", EntryPoint = "DWriteFrame")]
         public static extern int WriteFrame();
-        [DllImport("Depth_SinkWriter_CLI.dll", EntryPoint = "SetPath")]
+        [DllImport("SinkWriter_CLI.dll", EntryPoint = "DSetPath")]
         public static extern int SetPath(char[] path);
     }
 }
