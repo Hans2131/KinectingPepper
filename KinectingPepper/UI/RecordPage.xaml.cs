@@ -44,72 +44,74 @@ namespace Kinect_ing_Pepper.UI
             cbxCameraType.SelectedIndex = 0;
         }
         //System.Diagnostics.Stopwatch z = System.Diagnostics.Stopwatch.StartNew();
-
-        private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
+private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
+
+            WriteableBitmap cbmp = null;
+            WriteableBitmap dbmp = null;
 
             FrameParser frameParser = new FrameParser();
             MultiSourceFrame frame = e.FrameReference.AcquireFrame();
-            ColorFrame cf = (frame.ColorFrameReference.AcquireFrame());
-            DepthFrame df = null;// (frame.DepthFrameReference.AcquireFrame());
-            WriteableBitmap cbmp = null;
-            WriteableBitmap dbmp = null;
-            if (cf != null)
-            {
-                cbmp = frameParser.ParseToBitmap(cf);
-            }
-            if (df != null)
-            {
-                dbmp = frameParser.ParseToBitmap(df);
-            }
-
-            //Save data if needed
-            if (MediaSink.RGBMediaSink.IsRunning())
-            {
-                if (cbmp != null)
+            using (ColorFrame cf = (frame.ColorFrameReference.AcquireFrame())) {
+                using (DepthFrame df = (frame.DepthFrameReference.AcquireFrame()))
                 {
-                    cbmp.Unlock();
-                    MediaSink.RGBMediaSink.ProcessBitmap(cbmp.BackBuffer);
-                }
-            }
-
-            if (MediaSink.DepthMediaSink.IsRunning())
-            {
-                if (dbmp != null)
-                {
-                    dbmp.Unlock();
-                    MediaSink.DepthMediaSink.ProcessBitmap(dbmp.BackBuffer);
-                }
-            }
-
-            switch (_selectedCamera)
-            {
-
-                case ECameraType.Color:
-                    // Color
-                    bodyViewer.UpdateFrameCounter();                            
-                    bodyViewer.KinectImage = cbmp;               
-                    break;
-                case ECameraType.Depth:
-                    // Depth
-                    bodyViewer.UpdateFrameCounter();
-                    bodyViewer.KinectImage = dbmp;
-                    
-                    break;
-                case ECameraType.Infrared:
-                    using (InfraredFrame infraredFrame = frame.InfraredFrameReference.AcquireFrame())
+                    if (cf != null)
                     {
-                        if (infraredFrame != null)
+                        cbmp = frameParser.ParseToBitmap(cf);
+                    }
+                    if (df != null)
+                    {
+                        dbmp = frameParser.ParseToBitmap(df);
+                    }
+
+                    //Save data if needed
+                    if (MediaSink.RGBMediaSink.IsRunning())
+                    {
+                        if (cbmp != null)
                         {
-                            bodyViewer.UpdateFrameCounter();
-                            bodyViewer.KinectImage = frameParser.ParseToBitmap(infraredFrame);
+                            //cbmp.Unlock();
+                            MediaSink.RGBMediaSink.ProcessBitmap(cbmp.BackBuffer);
                         }
                     }
-                    break;
-                default:
-                    break;
+
+                    if (MediaSink.DepthMediaSink.IsRunning())
+                    {
+                        if (dbmp != null)
+                        {
+                            //dbmp.Unlock();
+                            MediaSink.DepthMediaSink.ProcessBitmap(dbmp.BackBuffer);
+                        }
+                    }
+
+                    switch (_selectedCamera)
+                    {
+
+                        case ECameraType.Color:
+                            // Color
+                            bodyViewer.UpdateFrameCounter();
+                            bodyViewer.KinectImage = cbmp;
+                            break;
+                        case ECameraType.Depth:
+                            // Depth
+                            bodyViewer.UpdateFrameCounter();
+                            bodyViewer.KinectImage = dbmp;
+
+                            break;
+                        case ECameraType.Infrared:
+                            using (InfraredFrame infraredFrame = frame.InfraredFrameReference.AcquireFrame())
+                            {
+                                if (infraredFrame != null)
+                                {
+                                    bodyViewer.UpdateFrameCounter();
+                                    bodyViewer.KinectImage = frameParser.ParseToBitmap(infraredFrame);
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
-        
             /*
             using (BodyFrame bodyFrame = frame.BodyFrameReference.AcquireFrame())
             {
