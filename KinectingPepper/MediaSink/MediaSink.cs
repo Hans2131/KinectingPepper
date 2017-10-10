@@ -33,6 +33,7 @@ namespace Kinect_ing_Pepper.MediaSink
 
         static public void ProcessBitmap(IntPtr b)
         {
+            if (b == null) return;
             char* buf = (char*)b;
             for (int i = 0, j = 0, t = 0, y = 0; i < TOTALI; i += 3)
             {
