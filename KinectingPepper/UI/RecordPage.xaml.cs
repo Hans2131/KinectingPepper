@@ -184,7 +184,6 @@ namespace Kinect_ing_Pepper.UI
 
         private void stopRecordingButton_Click(object sender, RoutedEventArgs e)
         {
-            DateTime dateTime = DateTime.Now;
             if (_recordingStarted)
             {
                 _recordingStarted = false;
