@@ -102,6 +102,7 @@
     </ApplicationDefinition>
     <Compile Include="Business\CSV_saver.cs" />
     <Compile Include="Business\FrameParser.cs" />
+    <Compile Include="Business\Logger.cs" />
     <Compile Include="Business\PersistFrames.cs" />
     <Compile Include="Business\KinectHelper.cs" />
     <Compile Include="Business\BodyHelper.cs" />

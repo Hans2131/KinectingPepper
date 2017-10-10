@@ -12,7 +12,7 @@ namespace Kinect_ing_Pepper.UI
         unsafe public MainWindow()
         {            
             InitializeComponent();
-
+            
             navigationFrame.Navigate(new RecordPage(navigationFrame));
         }
     }
