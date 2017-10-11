@@ -9,6 +9,7 @@ using Kinect_ing_Pepper.Enums;
 using Kinect_ing_Pepper.Business;
 using Kinect_ing_Pepper.Models;
 using System.Windows.Media;
+using Microsoft.Win32;
 
 namespace Kinect_ing_Pepper.UI
 {
@@ -43,13 +44,36 @@ namespace Kinect_ing_Pepper.UI
 
         private void selectFile_Click(object sender, RoutedEventArgs e)
         {
-            string filePath = @"C:\Users\Hans\Documents\Kinect Data\5-10-2017_09_01_38 P01\5-10-2017 09 03 27.xml";
-            _framesFromDisk = PersistFrames.Instance.DeserializeFromXML(filePath);
-            _playBackFrames = true;
+            if (_playBackFrames)
+            {
+                _playBackFrames = false;
+                CompositionTarget.Rendering -= CompositionTarget_Rendering;
+                _currentFrameNumber = 0;
+                _timeLastFrameRender = DateTime.MinValue;
+                _framesFromDisk = null;
+            }
 
-            slrFrameProgress.Maximum = _framesFromDisk.Count;
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
-            CompositionTarget.Rendering += CompositionTarget_Rendering;
+            openFileDialog1.InitialDirectory = @"C:\images\Pepper\";
+            openFileDialog1.Filter = "XML files (*.xml)|*.xml";
+
+            if (openFileDialog1.ShowDialog() == true)
+            {
+                try
+                {
+                    _framesFromDisk = PersistFrames.Instance.DeserializeFromXML(openFileDialog1.FileName);
+                    _playBackFrames = true;
+
+                    slrFrameProgress.Maximum = _framesFromDisk.Count;
+
+                    CompositionTarget.Rendering += CompositionTarget_Rendering;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
+                }
+            }
         }
 
         private void CompositionTarget_Rendering(object sender, EventArgs e)
