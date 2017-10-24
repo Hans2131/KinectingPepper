@@ -83,6 +83,12 @@ namespace Kinect_ing_Pepper.UI
 
         public void RenderBodies(List<BodyWrapper> trackedBodies, ECameraType cameraType)
         {
+            if (canvasSkeleton.ActualWidth == 0)
+            {
+                canvasSkeleton.Width = 1920;
+                canvasSkeleton.Height = 1080;
+            }
+
             DeleteUntrackedBodies(trackedBodies);
 
             foreach (BodyWrapper body in trackedBodies)

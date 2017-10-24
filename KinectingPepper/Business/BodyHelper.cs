@@ -37,42 +37,6 @@ namespace Kinect_ing_Pepper.Business
 
         public List<BodyDrawing> BodyDrawings { get; } = new List<BodyDrawing>();
 
-        private Dictionary<JointType, List<JointType>> CreateBodyHierarchy_old()
-        {
-            Dictionary<JointType, List<JointType>> dictHierarchy = new Dictionary<JointType, List<JointType>>();
-
-            //Skeleton base
-            dictHierarchy.Add(JointType.SpineBase, new List<JointType>() { JointType.HipRight, JointType.HipLeft, JointType.SpineMid });
-
-            //Right leg
-            dictHierarchy.Add(JointType.HipRight, new List<JointType>() { JointType.KneeRight });
-            dictHierarchy.Add(JointType.KneeRight, new List<JointType>() { JointType.AnkleRight });
-            dictHierarchy.Add(JointType.AnkleRight, new List<JointType>() { JointType.FootRight });
-
-            //Left leg
-            dictHierarchy.Add(JointType.HipLeft, new List<JointType>() { JointType.KneeLeft });
-            dictHierarchy.Add(JointType.KneeLeft, new List<JointType>() { JointType.AnkleLeft });
-            dictHierarchy.Add(JointType.AnkleLeft, new List<JointType>() { JointType.FootLeft });
-
-            //Spine
-            dictHierarchy.Add(JointType.SpineMid, new List<JointType>() { JointType.SpineShoulder });
-            dictHierarchy.Add(JointType.SpineShoulder, new List<JointType>() { JointType.ShoulderRight, JointType.ShoulderLeft });
-
-            //Right arm
-            dictHierarchy.Add(JointType.ShoulderRight, new List<JointType>() { JointType.ElbowRight });
-            dictHierarchy.Add(JointType.ElbowRight, new List<JointType>() { JointType.WristRight });
-            dictHierarchy.Add(JointType.WristRight, new List<JointType>() { JointType.HandRight, JointType.ThumbRight });
-            dictHierarchy.Add(JointType.HandRight, new List<JointType>() { JointType.HandTipRight });
-
-            //Left arm
-            dictHierarchy.Add(JointType.ShoulderLeft, new List<JointType>() { JointType.ElbowLeft });
-            dictHierarchy.Add(JointType.ElbowLeft, new List<JointType>() { JointType.WristLeft });
-            dictHierarchy.Add(JointType.WristLeft, new List<JointType>() { JointType.HandLeft, JointType.ThumbLeft });
-            dictHierarchy.Add(JointType.HandLeft, new List<JointType>() { JointType.HandTipLeft });
-
-            return dictHierarchy;
-        }
-
         private List<Tuple<JointType, JointType>> CreateBodyHierarchy()
         {
             List<Tuple<JointType, JointType>> boneList = new List<Tuple<JointType, JointType>>();
