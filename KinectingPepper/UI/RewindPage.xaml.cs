@@ -65,7 +65,8 @@ namespace Kinect_ing_Pepper.UI
                     _framesFromDisk = PersistFrames.Instance.DeserializeFromXML(openFileDialog1.FileName);
                     _playBackFrames = true;
 
-                    slrFrameProgress.Maximum = _framesFromDisk.Count;
+                    slrFrameProgress.Maximum = 0;
+                    slrFrameProgress.Maximum = _framesFromDisk.Count - 1;
 
                     CompositionTarget.Rendering += CompositionTarget_Rendering;
                 }
@@ -103,7 +104,10 @@ namespace Kinect_ing_Pepper.UI
                             _currentFrameNumber++;
                             _timeLastFrameRender = DateTime.Now;
                             _timeLastFrameRender += timePast - expectedTimeSpan;
+
+                            txtFrameTime.Text = (_currentFrameNumber + 1).ToString();
                             slrFrameProgress.Value = _currentFrameNumber;
+
                             bodyViewer.RenderBodies(_framesFromDisk[_currentFrameNumber].TrackedBodies, ECameraType.Color);
                         }
                     }
@@ -111,20 +115,42 @@ namespace Kinect_ing_Pepper.UI
             }
         }
 
-        private void resetPlayer_Click(object sender, RoutedEventArgs e)
+        private void startPlayer_Click(object sender, RoutedEventArgs e)
         {
-            //CompositionTarget.Rendering -= CompositionTarget_Rendering;
-            //_playBackFrames = false;
-            _currentFrameNumber = 0;
+            if (!_playBackFrames)
+            {
+                _playBackFrames = true;
+            }
         }
         private void pausePlayer_Click(object sender, RoutedEventArgs e)
         {
-            _playBackFrames = false;
+            if (_playBackFrames)
+            {
+                _playBackFrames = false;
+                _timeLastFrameRender = DateTime.MinValue;
+            }
         }
 
         private void navigateToRecordPage_Click(object sender, RoutedEventArgs e)
         {
             navigationFrame.NavigationService.GoBack();
+        }
+
+        private void slrFrameProgress_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (_framesFromDisk != null)
+            {
+                int currentValue = (int)slrFrameProgress.Value;
+                if (currentValue != _currentFrameNumber)
+                {
+                    _playBackFrames = false;
+                    _timeLastFrameRender = DateTime.MinValue;
+                    _currentFrameNumber = currentValue;
+
+                    txtFrameTime.Text = (_currentFrameNumber + 1).ToString();
+                    bodyViewer.RenderBodies(_framesFromDisk[_currentFrameNumber].TrackedBodies, ECameraType.Color);
+                }
+            }
         }
     }
 }
