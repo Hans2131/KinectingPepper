@@ -20,9 +20,9 @@ namespace Kinect_ing_Pepper.Business
             frameCounter = 1;
         }
 
-        public void saveCSV()
+        public void saveCSV(string filepath)
         {
-            StreamWriter sw = new StreamWriter("joints_csv.csv");
+            StreamWriter sw = new StreamWriter(filepath);
             var csv = new CsvWriter(sw);
             csv.WriteRecords(jList);
             csv.Dispose();

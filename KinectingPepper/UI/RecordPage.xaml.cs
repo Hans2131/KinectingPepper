@@ -140,11 +140,60 @@ namespace Kinect_ing_Pepper.UI
 
         private void RestartKinectButton_Click(object sender, RoutedEventArgs e)
         {
-            if (KinectHelper.Instance.KinectSensor.IsAvailable && !_recordingStarted)
+            /*if (KinectHelper.Instance.KinectSensor.IsAvailable && !_recordingStarted)
             {
                 KinectHelper.Instance.StopKinect();
             }
             RestartKinect();
+            */
+            foreach(var dr in System.Environment.GetLogicalDrives())
+            {
+                var di = new System.IO.DriveInfo(dr);
+                if (di.IsReady)
+                {
+                    var rootDir = di.RootDirectory;
+
+
+                    var subDirs = rootDir.GetDirectories();
+
+                    foreach (var dirInfo in subDirs)
+                    {
+
+                        if (dirInfo.Name.Equals("xml_to_csv"))
+                        {
+                            xmlDirToCSV(dirInfo);
+
+                        }
+                    }
+                }
+
+            }
+        }
+        private void xmlDirToCSV(DirectoryInfo di)
+        {
+            foreach(var subDir in di.GetDirectories())
+            {
+                foreach(var file in subDir.GetFiles())
+                {
+                    if (file.Name.EndsWith(".xml"))
+                    {
+                        var csvName = file.FullName.Remove(file.FullName.Length - 3) + "csv";
+
+                        var serializer = new XmlSerializer(typeof(List<BodyFrameWrapper>));
+                        var reader = new StreamReader(file.FullName);
+                        var bfws = (List<BodyFrameWrapper>)serializer.Deserialize(reader);
+                        var csvSaver = new CSV_saver();
+                        foreach(var bfw in bfws)
+                        {
+                            csvSaver.saveSkeletonFrame(bfw);
+                        }
+                        csvSaver.saveCSV(csvName);
+
+
+                    }
+                }
+            }
+
         }
 
         private void startRecordingButton_Click(object sender, RoutedEventArgs e)
@@ -197,13 +246,20 @@ namespace Kinect_ing_Pepper.UI
                 if (_recordedBodyFrames.Any())
                 {
                     string filePath = generator.FolderPathName + "/" +
-                        dateTime.ToShortDateString() + " " + dateTime.ToLongTimeString().Replace(":", " ") + ".xml";
-                    PersistFrames.Instance.SerializeToXML(_recordedBodyFrames, filePath);
-
+                        dateTime.ToShortDateString() + " " + dateTime.ToLongTimeString().Replace(":", " ");
+                    string xmlPath = filePath + ".xml";
+                    string csvPath = filePath + ".csv";
+                    var csvSaver = new CSV_saver();
+                    foreach( var frame in _recordedBodyFrames)
+                    {
+                        csvSaver.saveSkeletonFrame(frame);
+                    }
+                    csvSaver.saveCSV(csvPath);
+                    PersistFrames.Instance.SerializeToXML(_recordedBodyFrames, xmlPath);
                     //reset recorded frames
                     _recordedBodyFrames = new List<BodyFrameWrapper>();
 
-                    Logger.Instance.LogMessage("Xml saved as: " + filePath);
+                    Logger.Instance.LogMessage("XML&CSV saved as: " + filePath);
                 }
 
                 cbxCameraType.IsEnabled = true;
