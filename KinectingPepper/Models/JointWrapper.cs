@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Numerics;
 using Kinect_ing_Pepper.Business;
 using System.Windows;
+using Kinect_ing_Pepper.Enums;
 
 namespace Kinect_ing_Pepper.Models
 {
@@ -28,6 +29,21 @@ namespace Kinect_ing_Pepper.Models
             PointInColorSpace = BodyHelper.Instance.MapCameraToSpace(Position, Enums.ECameraType.Color);
             PointInDepthSpace = BodyHelper.Instance.MapCameraToSpace(Position, Enums.ECameraType.Depth);
             TrackingState = joint.TrackingState;
+        }
+
+        public Point GetCameraPoint(ECameraType cameraType)
+        {
+            switch (cameraType)
+            {
+                case ECameraType.Color:
+                    return PointInColorSpace;
+                case ECameraType.Depth:
+                    return PointInDepthSpace;
+                case ECameraType.Infrared:
+                    return PointInDepthSpace;
+                default:
+                    return PointInColorSpace;
+            }
         }
     }
 }
