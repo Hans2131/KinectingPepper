@@ -8,7 +8,7 @@ namespace Kinect_ing_Pepper.Business
 {
     class PathNameGenerator
     {
-        public string folderPathName { get; set; }
+        public string FolderPathName { get; set; }
         private string defaultPackage = "C:/images/Pepper/";
 
         public void CreateFolder()
@@ -19,7 +19,7 @@ namespace Kinect_ing_Pepper.Business
             string path = defaultPackage + dateTimeString;
             path = path.Replace(" ", "_");
             System.IO.Directory.CreateDirectory(path);
-            this.folderPathName = path; 
+            this.FolderPathName = path; 
         }
 
         private string CreateFileName(string cameraType)
