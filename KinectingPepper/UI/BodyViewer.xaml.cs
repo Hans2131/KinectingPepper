@@ -83,6 +83,12 @@ namespace Kinect_ing_Pepper.UI
         /*
         public void RenderBodies(List<BodyWrapper> trackedBodies, ECameraType cameraType)
         {
+            if (canvasSkeleton.ActualWidth == 0)
+            {
+                canvasSkeleton.Width = 1920;
+                canvasSkeleton.Height = 1080;
+            }
+
             DeleteUntrackedBodies(trackedBodies);
 
             foreach (BodyWrapper body in trackedBodies)
@@ -109,6 +115,12 @@ namespace Kinect_ing_Pepper.UI
                     _canvasCleared = true;
                 }
             }
+        }
+
+        public void Clear()
+        {
+            canvasSkeleton.Children.Clear();
+            KinectImage = null;
         }
 
         private void RenderBody(BodyWrapper body, ECameraType cameraType)
