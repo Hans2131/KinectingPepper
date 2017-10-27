@@ -12,7 +12,7 @@ namespace Kinect_ing_Pepper.MediaSink
     * Input is RGB32 as X8 R8 G8 B8
     * !!! Data Processing will go from bottom-left to top-right !!!
     */
-    public unsafe class RGBMediaSink
+    public static unsafe class RGBMediaSink
     {
 
         const int WIDTH = 1920;
@@ -20,30 +20,32 @@ namespace Kinect_ing_Pepper.MediaSink
         const int NEWWIDTH = 640;
         const int NEWHEIGHT = 480;        
         const int COLORS = 3;
-        const int Commpresstride = (HEIGHT) / (NEWHEIGHT);
-        const int skiptonext = HEIGHT * COLORS - ((HEIGHT) % (Commpresstride));
-        const int Commpresheight = (WIDTH) / (NEWWIDTH);
-        const int extraframe = NEWWIDTH / ((WIDTH % NEWWIDTH) + 1);
+        const int OC = 4;
+        const int Commpresheight = (HEIGHT) / (NEWHEIGHT);
+        const int skiptonext = WIDTH * OC - ((WIDTH) % (Commpresstride));
+        const int Commpresstride = (WIDTH) / (NEWWIDTH);
+        const int extraframe = NEWHEIGHT / ((HEIGHT % NEWHEIGHT) + 1);
         const int TOTALI = NEWHEIGHT * NEWWIDTH * COLORS;
-        const int extendx = (Commpresstride) * COLORS;
-        const int extendy1 = (Commpresheight + 1) * HEIGHT * COLORS;
-        const int extendy = (Commpresheight) * HEIGHT * COLORS;
+        const int extendx = (Commpresstride) * OC;
+        const int extendy1 = (Commpresheight + 1) * WIDTH * OC;
+        const int extendy = (Commpresheight) * WIDTH * OC;
 
-        static char[] buffer = new char[NEWWIDTH * NEWHEIGHT * COLORS + 1];
+        static byte[] buffer = new byte[NEWWIDTH * NEWHEIGHT * COLORS + 1];
 
         static public void ProcessBitmap(IntPtr b)
         {
-            char* buf = (char*)b;
+            if (b == null) return;
+            byte* buf = (byte*)b;
             for (int i = 0, j = 0, t = 0, y = 0; i < TOTALI; i += 3)
             {
-                buffer[i + 0] = buf[j + 3 + y];  //R
-                buffer[i + 1] = buf[j + 2 + y];  //G
-                buffer[i + 2] = buf[j + 1 + y];  //B
+                buffer[i + 0] = buf[j + 2 + y];  //R
+                buffer[i + 1] = buf[j + 1 + y];  //G
+                buffer[i + 2] = buf[j + 0 + y];  //B
                 j += extendx;
-                if (j > skiptonext)
+                if (j > skiptonext-1)
                 {
                     t++;
-                    if (t == extraframe)
+                    if (t == extraframe+1)
                     {
                         j = 0; y += extendy1; t = 0;
                     }
@@ -54,7 +56,7 @@ namespace Kinect_ing_Pepper.MediaSink
                     }
                 }
             }
-            fixed(char* x = &buffer[0])
+            fixed(byte* x = &buffer[0])
             Process(x);
         }
 
@@ -86,23 +88,22 @@ namespace Kinect_ing_Pepper.MediaSink
         public static extern bool IsActive();
         //process the given data
         [DllImport("SinkWriter_CLI.dll", EntryPoint = "RGBProcess")]
-        private static extern void Process(char* buffer);        
+        private static extern void Process(byte* buffer);        
         [DllImport("SinkWriter_CLI.dll", EntryPoint = "RGBSetPath")]
         public static extern int SetPath(char[] path);
     }
 
 
-    public unsafe class DepthMediaSink
+    public static unsafe class DepthMediaSink
     {
         const int NEWWIDTH = 640;
         const int NEWHEIGHT = 480;
         const int DEPTHWIDTH = 512;
-        const int DEPTHHEIGHT = 424;
+        const int DEPTHHEIGHT = 432;
         const int AREA = NEWWIDTH * NEWHEIGHT;
-        const int Dextendx = (int)((double)(NEWWIDTH) / (NEWWIDTH - DEPTHWIDTH) + 0.5);
-        const int Dextendy = (int)((double)(NEWHEIGHT) / (NEWHEIGHT - DEPTHHEIGHT) + 0.5);
-
-        static char[]bufferdepth = new char[NEWHEIGHT*NEWWIDTH];
+        const int Dextendx = (int)((double)(DEPTHWIDTH) / (NEWWIDTH - DEPTHWIDTH) + 0.5);
+        const int Dextendy = (int)((double)(DEPTHHEIGHT) / (NEWHEIGHT - DEPTHHEIGHT) + 0.5);
+        static byte[]bufferdepth = new byte[NEWHEIGHT*NEWWIDTH];
         static UInt32* buff;
 
         static public bool IsRunning()
@@ -123,34 +124,41 @@ namespace Kinect_ing_Pepper.MediaSink
         }
 
         static public void ProcessBitmap(IntPtr b)
-        {
-            char* buffer = (char*)b;
-            int i = 0, j = 0, y = 0;
-            while (i < AREA)
+        {            
+            //512 432
+            byte* buffer = (byte*)b;
+            int iterbuffer = 0;
+            int iternewbuffer = 0;
+  
+            for (int y = 0; y < 432;)
             {
-                for (int x = 0; x < NEWWIDTH; x++)
-                {
-                    bufferdepth[i] = buffer[j];
-                    j++; i++;
-                    if (j % (Dextendx - 1) == 0)
+                for (int x = 0; x < 512; )
+                {               
+                    bufferdepth[iternewbuffer] = (byte)buffer[iterbuffer];
+                    iterbuffer++;
+                    iternewbuffer++;
+                    x++;
+                    if (x % Dextendx == 0)
                     {
-                        bufferdepth[i] = bufferdepth[i - 1];
-                        i++; x++;
+                        bufferdepth[iternewbuffer] = bufferdepth[iternewbuffer - 1];
+                        iternewbuffer++;
                     }
                 }
                 y++;
-                if (y % (Dextendy - 1) == 0)
+                if (y % Dextendy == 0)
                 {
-                    for (int x = 0; x < NEWWIDTH; x++, i++)
+                    for (int x = 0; x < 640; x++)
                     {
-                        bufferdepth[i] = bufferdepth[i - NEWHEIGHT];
+                        bufferdepth[iternewbuffer]=bufferdepth[iternewbuffer - 640];
+                        iternewbuffer++;
                     }
-                    y++;
                 }
             }
+
+
             for(int I = 0,J=NEWWIDTH*(NEWHEIGHT-1); I <AREA; I++)
             {
-                buff[I] = bufferdepth[J];
+                buff[I] = (UInt32)(bufferdepth[J]<<16)+ (UInt32)(bufferdepth[J] << 8)+ (UInt32)(bufferdepth[J] << 0);
                 J++;
                 if (J % NEWWIDTH == 0)
                     J -= NEWWIDTH * 2;
