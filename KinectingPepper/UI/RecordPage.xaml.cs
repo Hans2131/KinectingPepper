@@ -42,8 +42,7 @@ namespace Kinect_ing_Pepper.UI
 
             cbxCameraType.ItemsSource = Enum.GetValues(typeof(ECameraType)).Cast<ECameraType>();
             cbxCameraType.SelectedIndex = 0;
-        }
-        //System.Diagnostics.Stopwatch z = System.Diagnostics.Stopwatch.StartNew();
+        }        
         
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
