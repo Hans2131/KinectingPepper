@@ -16,7 +16,7 @@ using System.Windows.Shapes;
 using Microsoft.Kinect;
 using Kinect_ing_Pepper.Enums;
 using Kinect_ing_Pepper.Business;
-//using Kinect_ing_Pepper.Models;
+using Kinect_ing_Pepper.Models;
 using System.Diagnostics;
 
 namespace Kinect_ing_Pepper.UI
@@ -28,7 +28,7 @@ namespace Kinect_ing_Pepper.UI
     {
         private int _frameCounter = 0;
         private DateTime _lastFPSSample = DateTime.MinValue;
-        //private bool _canvasCleared = false;
+        private bool _canvasCleared = false;
 
         #region Dependancy Properties
 
@@ -80,7 +80,7 @@ namespace Kinect_ing_Pepper.UI
                 _frameCounter++;
             }
         }
-        /*
+
         public void RenderBodies(List<BodyWrapper> trackedBodies, ECameraType cameraType)
         {
             if (canvasSkeleton.ActualWidth == 0)
@@ -155,6 +155,6 @@ namespace Kinect_ing_Pepper.UI
 
                 _canvasCleared = false;
             }
-        }*/
+        }
     }
 }

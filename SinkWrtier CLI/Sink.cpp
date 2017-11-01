@@ -40,7 +40,8 @@ const UINT32 VIDEO_HEIGHT = 480;
 const UINT32 VIDEO_FPS = 20;
 const UINT64 VIDEO_FRAME_DURATION = 10 * 1000 * 1000 / VIDEO_FPS;
 const UINT32 VIDEO_BIT_RATE = 8000000;
-const GUID   VIDEO_ENCODING_FORMAT = MFVideoFormat_H264;
+const GUID   VIDEO_ENCODING_FORMAT = MFVideoFormat_MJPG;//MFVideoFormat_H264;
+const char* extension = ".mpeg";
 const GUID   VIDEO_INPUT_FORMAT = MFVideoFormat_RGB32;
 const UINT32 VIDEO_PELS = VIDEO_WIDTH * VIDEO_HEIGHT;
 bool active = false;
@@ -298,11 +299,10 @@ void  RGBInit()
 	}
 }
 
-void RGBSetPath(char pathName[]) {
-	char mp4[5] = ".mp4";
+void RGBSetPath(char pathName[]) {	
 	int i = 0, j = 0;
-	while ((pathName[i] != 0) && (mp4[j] != 0)) {
-		if (pathName[i] == mp4[j])j++;
+	while ((pathName[i] != 0) && (extension[j] != 0)) {
+		if (pathName[i] == extension[j])j++;
 		else j = 0;
 		i++;
 	}

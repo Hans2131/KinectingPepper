@@ -1,5 +1,5 @@
 ﻿using Kinect_ing_Pepper.Enums;
-//using Kinect_ing_Pepper.Models;
+using Kinect_ing_Pepper.Models;
 using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-/*namespace Kinect_ing_Pepper.Business
+namespace Kinect_ing_Pepper.Business
 {
     public class BodyHelper
     {
@@ -106,4 +106,3 @@ using System.Windows;
         }
     }
 }
-*/
