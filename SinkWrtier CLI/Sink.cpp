@@ -40,7 +40,7 @@ const UINT32 VIDEO_HEIGHT = 480;
 const UINT32 VIDEO_FPS = 20;
 const UINT64 VIDEO_FRAME_DURATION = 10 * 1000 * 1000 / VIDEO_FPS;
 const UINT32 VIDEO_BIT_RATE = 8000000;
-const GUID   VIDEO_ENCODING_FORMAT = MFVideoFormat_MJPG;//MFVideoFormat_H264;
+const GUID   VIDEO_ENCODING_FORMAT = MFVideoFormat_H264;
 const char* extension = ".mpeg";
 const GUID   VIDEO_INPUT_FORMAT = MFVideoFormat_RGB32;
 const UINT32 VIDEO_PELS = VIDEO_WIDTH * VIDEO_HEIGHT;
@@ -325,6 +325,7 @@ void  RGBShutdown() {
 		RGBSinkWriter->Finalize();
 		SafeRelease(&RGBSinkWriter);
 		RGBSinkWriter = nullptr;
+		RGBrtStart = 0;
 	}
 	if ((!runRGB) && (!runDepth) && (active)) {
 		active = false;
@@ -532,7 +533,7 @@ void  DInit()
 }
 
 void DSetPath(char pathName[]) {
-	char mp4[5] = ".mp4";
+	char mp4[6] = ".mpeg";
 	int i = 0, j = 0;
 	while ((pathName[i] != 0) && (mp4[j] != 0)) {
 		if (pathName[i] == mp4[j])j++;
@@ -558,6 +559,7 @@ void  DShutdown() {
 		DSinkWriter->Finalize();
 		SafeRelease(&DSinkWriter);
 		DSinkWriter = nullptr;
+		DrtStart = 0;
 	}
 	if ((!runRGB) && (!runDepth) && (active)) {
 		active = false;
