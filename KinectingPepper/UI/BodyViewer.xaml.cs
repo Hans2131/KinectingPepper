@@ -156,5 +156,11 @@ namespace Kinect_ing_Pepper.UI
                 _canvasCleared = false;
             }
         }
+
+        public void PlaybackVideoFile(string fileName)
+        {
+            mediaElement.Source = new Uri(fileName);
+            mediaElement.Play();
+        }
     }
 }

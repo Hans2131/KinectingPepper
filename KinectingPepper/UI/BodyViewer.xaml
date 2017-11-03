@@ -9,7 +9,8 @@
              BorderThickness="1" BorderBrush="Black">
     <Grid>
         <Viewbox Margin="0,0,0,0">
-            <Grid Background="Black">
+            <Grid>
+                <MediaElement Name="mediaElement" Stretch="UniformToFill" LoadedBehavior="Manual"></MediaElement>
                 <Image Name="camera" Source="{Binding KinectImage}" Stretch="UniformToFill" HorizontalAlignment="Left"/>
                 <Canvas Name="canvasSkeleton" />
             </Grid>

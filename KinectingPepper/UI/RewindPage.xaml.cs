@@ -10,6 +10,7 @@ using Kinect_ing_Pepper.Business;
 using Kinect_ing_Pepper.Models;
 using System.Windows.Media;
 using Microsoft.Win32;
+using System.IO;
 
 namespace Kinect_ing_Pepper.UI
 {
@@ -62,7 +63,21 @@ namespace Kinect_ing_Pepper.UI
             {
                 try
                 {
-                    _framesFromDisk = PersistFrames.Instance.DeserializeFromXML(openFileDialog1.FileName);
+                    string fullXMLPath = openFileDialog1.FileName;
+                    //string videoFileName = "Depth_" + Path.GetFileName(fullPath).Replace(".xml", ".mp4");
+                    //string[] splitted = videoFileName.Split(new char[] { ' ' });
+                    //videoFileName = splitted[0] + " " + splitted[1] + "_" + splitted[2] + "_" + splitted[3];
+                    //string fullVideoUri = Path.Combine(Path.GetDirectoryName(fullPath), videoFileName);
+                    openFileDialog1.InitialDirectory = Path.GetDirectoryName(fullXMLPath);
+                    openFileDialog1.Filter = "MP4 files (*.mp4)|*.mp4";
+
+                    if (openFileDialog1.ShowDialog() == true)
+                    {
+                        string fullVideoUri = openFileDialog1.FileName;
+                        bodyViewer.PlaybackVideoFile(fullVideoUri);
+                    }
+
+                    _framesFromDisk = PersistFrames.Instance.DeserializeFromXML(fullXMLPath);
                     _playBackFrames = true;
 
                     slrFrameProgress.Maximum = 0;
@@ -92,7 +107,7 @@ namespace Kinect_ing_Pepper.UI
                     if (_timeLastFrameRender == DateTime.MinValue)
                     {
                         _timeLastFrameRender = DateTime.Now;
-                        bodyViewer.RenderBodies(_framesFromDisk[_currentFrameNumber].TrackedBodies, ECameraType.Color);
+                        bodyViewer.RenderBodies(_framesFromDisk[_currentFrameNumber].TrackedBodies, ECameraType.Depth);
                     }
                     else
                     {
@@ -108,7 +123,7 @@ namespace Kinect_ing_Pepper.UI
                             txtFrameTime.Text = (_currentFrameNumber + 1).ToString();
                             slrFrameProgress.Value = _currentFrameNumber;
 
-                            bodyViewer.RenderBodies(_framesFromDisk[_currentFrameNumber].TrackedBodies, ECameraType.Color);
+                            bodyViewer.RenderBodies(_framesFromDisk[_currentFrameNumber].TrackedBodies, ECameraType.Depth);
                         }
                     }
                 }
