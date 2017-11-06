@@ -19,7 +19,7 @@ namespace Kinect_ing_Pepper.UI
     /// </summary>
     public partial class RewindPage : Page
     {
-        private ECameraType _selectedCamera = ECameraType.Color;
+        private ECameraType _selectedCamera = ECameraType.Depth;
         private readonly Frame navigationFrame;
 
         private List<BodyFrameWrapper> _skeletonFrames;
@@ -72,7 +72,7 @@ namespace Kinect_ing_Pepper.UI
                     //string fullVideoUri = Path.Combine(Path.GetDirectoryName(fullPath), videoFileName);
                     openFileDialog1.FileName = "";
                     openFileDialog1.InitialDirectory = Path.GetDirectoryName(fullXMLPath);
-                    openFileDialog1.Filter = "MP4 files (*.mp4)|*.mpeg";
+                    openFileDialog1.Filter = "MP4 files (*.mp4)|*.mp4";
 
                     if (openFileDialog1.ShowDialog() == true)
                     {
@@ -109,8 +109,7 @@ namespace Kinect_ing_Pepper.UI
                     if (_timeLastFrameRender == DateTime.MinValue)
                     {
                         _timeLastFrameRender = DateTime.Now;
-                        bodyViewer.KinectImage = _videoFrames[_currentFrameNumber];
-                        bodyViewer.RenderBodies(_skeletonFrames[_currentFrameNumber].TrackedBodies, ECameraType.Depth);
+                        UpdateImaging();
                     }
                     else
                     {
@@ -123,11 +122,7 @@ namespace Kinect_ing_Pepper.UI
                             _timeLastFrameRender = DateTime.Now;
                             _timeLastFrameRender += timePast - expectedTimeSpan;
 
-                            txtFrameTime.Text = (_currentFrameNumber + 1).ToString();
-                            slrFrameProgress.Value = _currentFrameNumber;
-
-                            bodyViewer.KinectImage = _videoFrames[_currentFrameNumber];
-                            bodyViewer.RenderBodies(_skeletonFrames[_currentFrameNumber].TrackedBodies, ECameraType.Depth);
+                            UpdateImaging();
                         }
                     }
                 }
@@ -136,18 +131,11 @@ namespace Kinect_ing_Pepper.UI
 
         private void startPlayer_Click(object sender, RoutedEventArgs e)
         {
-            if (!_playBackFrames)
-            {
-                _playBackFrames = true;
-            }
+            _playBackFrames = true;
         }
         private void pausePlayer_Click(object sender, RoutedEventArgs e)
         {
-            if (_playBackFrames)
-            {
-                _playBackFrames = false;
-                _timeLastFrameRender = DateTime.MinValue;
-            }
+            StopPlaying();
         }
 
         private void navigateToRecordPage_Click(object sender, RoutedEventArgs e)
@@ -162,15 +150,53 @@ namespace Kinect_ing_Pepper.UI
                 int currentValue = (int)slrFrameProgress.Value;
                 if (currentValue != _currentFrameNumber)
                 {
-                    _playBackFrames = false;
-                    _timeLastFrameRender = DateTime.MinValue;
+                    StopPlaying();
+
                     _currentFrameNumber = currentValue;
 
-                    txtFrameTime.Text = (_currentFrameNumber + 1).ToString();
-                    bodyViewer.KinectImage = _videoFrames[_currentFrameNumber];
-                    bodyViewer.RenderBodies(_skeletonFrames[_currentFrameNumber].TrackedBodies, ECameraType.Depth);
+                    UpdateImaging();
                 }
             }
+        }
+
+        private void Page_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.D)
+            {
+                StopPlaying();
+                if (_currentFrameNumber < _skeletonFrames.Count - 1)
+                {
+                    _currentFrameNumber++;
+                }
+            }
+
+            if (e.Key == System.Windows.Input.Key.A)
+            {
+                StopPlaying();
+                if (_currentFrameNumber > 0)
+                {
+                    _currentFrameNumber--;
+                }
+            }
+            UpdateImaging();
+        }
+
+        private void StopPlaying()
+        {
+            if (_playBackFrames)
+            {
+                _playBackFrames = false;
+                _timeLastFrameRender = DateTime.MinValue;
+            }
+        }
+
+        private void UpdateImaging()
+        {
+            txtFrameTime.Text = (_currentFrameNumber + 1).ToString();
+            slrFrameProgress.Value = _currentFrameNumber;
+
+            bodyViewer.KinectImage = _videoFrames[_currentFrameNumber];
+            bodyViewer.RenderBodies(_skeletonFrames[_currentFrameNumber].TrackedBodies, _selectedCamera);
         }
     }
 }

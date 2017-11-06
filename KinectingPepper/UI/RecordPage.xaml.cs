@@ -62,52 +62,72 @@ namespace Kinect_ing_Pepper.UI
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
 
+            WriteableBitmap cbmp = null;
+            WriteableBitmap dbmp = null;
+
             FrameParser frameParser = new FrameParser();
             MultiSourceFrame frame = e.FrameReference.AcquireFrame();
+            using (ColorFrame cf = (frame.ColorFrameReference.AcquireFrame())) {
+                using (DepthFrame df = (frame.DepthFrameReference.AcquireFrame()))
+                {
+                    if (cf != null)
+                    {
+                        cbmp = frameParser.ParseToBitmap(cf);
+                    }
+                    if (df != null)
+                    {
+                        dbmp = frameParser.ParseToBitmap(df);
+                    }
 
-            switch (_selectedCamera)
-            {
-                case ECameraType.Color:
-                    // Color
-                    using (ColorFrame colorFrame = frame.ColorFrameReference.AcquireFrame())
+                    //Save data if needed
+                    if (MediaSink.RGBMediaSink.IsRunning())
                     {
-                        if (colorFrame != null)
+                        if (cbmp != null)
                         {
-                            bodyViewer.UpdateFrameCounter();
-                            WriteableBitmap wb = frameParser.ParseToBitmap(colorFrame);
-                            bodyViewer.KinectImage = wb;
-                            MediaSink.General.RGBToBuf(ref wb);
+                            //cbmp.Unlock();
+                            MediaSink.RGBMediaSink.ProcessBitmap(cbmp.BackBuffer);
                         }
                     }
-                    break;
-                case ECameraType.Depth:
-                    // Depth
-                    using (DepthFrame depthFrame = frame.DepthFrameReference.AcquireFrame())
-                    {
-                        if (depthFrame != null)
-                        {
 
-                            MediaSink.General.DepthToBuf(depthFrame);
-                            bodyViewer.UpdateFrameCounter();
-                            bodyViewer.KinectImage = frameParser.ParseToBitmap(depthFrame);
-                        }
-                    }
-                    break;
-                case ECameraType.Infrared:
-                    using (InfraredFrame infraredFrame = frame.InfraredFrameReference.AcquireFrame())
+                    if (MediaSink.DepthMediaSink.IsRunning())
                     {
-                        if (infraredFrame != null)
+                        if (dbmp != null)
                         {
-                            bodyViewer.UpdateFrameCounter();
-                            bodyViewer.KinectImage = frameParser.ParseToBitmap(infraredFrame);
+                            //dbmp.Unlock();
+                            MediaSink.DepthMediaSink.ProcessBitmap(dbmp.BackBuffer);
                         }
                     }
-                    break;
-                default:
-                    break;
+
+                    switch (_selectedCamera)
+                    {
+
+                        case ECameraType.Color:
+                            // Color
+                            bodyViewer.UpdateFrameCounter();
+                            bodyViewer.KinectImage = cbmp;
+                            break;
+                        case ECameraType.Depth:
+                            // Depth
+                            bodyViewer.UpdateFrameCounter();
+                            bodyViewer.KinectImage = dbmp;
+
+                            break;
+                        case ECameraType.Infrared:
+                            using (InfraredFrame infraredFrame = frame.InfraredFrameReference.AcquireFrame())
+                            {
+                                if (infraredFrame != null)
+                                {
+                                    bodyViewer.UpdateFrameCounter();
+                                    bodyViewer.KinectImage = frameParser.ParseToBitmap(infraredFrame);
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
             }
-
-
+            
             using (BodyFrame bodyFrame = frame.BodyFrameReference.AcquireFrame())
             {
                 if (bodyFrame != null)

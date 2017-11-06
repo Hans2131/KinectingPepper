@@ -6,7 +6,7 @@
       xmlns:local="clr-namespace:Kinect_ing_Pepper.UI"
       mc:Ignorable="d" 
       d:DesignHeight="300" d:DesignWidth="300"
-      Title="DataViewer" Unloaded="Page_Unloaded">
+      Title="DataViewer" Unloaded="Page_Unloaded" KeyDown="Page_KeyDown">
 
     <Grid>
         <Grid.RowDefinitions>
