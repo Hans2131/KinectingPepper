@@ -87,10 +87,16 @@ namespace Kinect_ing_Pepper.UI
         {
             if (canvasSkeleton.ActualWidth == 0)
             {
-                //canvasSkeleton.Width = 1920;
-                //canvasSkeleton.Height = 1080;
-                canvasSkeleton.Width = 512;
-                canvasSkeleton.Height = 424;
+                if (cameraType == ECameraType.Color)
+                {
+                    canvasSkeleton.Width = 1920;
+                    canvasSkeleton.Height = 1080;
+                }
+                else
+                {
+                    canvasSkeleton.Width = 512;
+                    canvasSkeleton.Height = 424;
+                }
             }
 
             DeleteUntrackedBodies(trackedBodies);
@@ -160,44 +166,5 @@ namespace Kinect_ing_Pepper.UI
                 _canvasCleared = false;
             }
         }
-
-        //private VideoFileReader _reader;
-        //private List<ImageSource> _videoFrames = new List<ImageSource>();
-
-        //public void ReadVideoFile(string fileName)
-        //{
-        //    _reader = new VideoFileReader();
-        //    _reader.Open(fileName);
-
-        //    FrameParser parser = new FrameParser();
-        //    _videoFrames = new List<ImageSource>();
-            
-        //    for (int i = 0; i < _reader.FrameCount; i++)
-        //    {
-        //        Bitmap videoFrame = _reader.ReadVideoFrame();                
-        //        ImageSource imageSource = parser.ImageSourceForBitmap(videoFrame);
-        //        _videoFrames.Add(imageSource);
-        //    }
-
-        //    _reader.Close();
-        //}
-
-        //public void ShowNextVideoFrame()
-        //{
-        //    Bitmap videoFrame = _reader.ReadVideoFrame();
-
-        //    FrameParser parser = new FrameParser();
-        //    KinectImage = parser.ImageSourceForBitmap(videoFrame);
-
-        //    videoFrame.Dispose();
-        //}
-
-        //public void CloseVideoFile()
-        //{
-        //    if (_reader != null)
-        //    {
-        //        _reader.Close();
-        //    }
-        //}
     }
 }

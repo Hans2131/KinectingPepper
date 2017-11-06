@@ -63,6 +63,7 @@ namespace Kinect_ing_Pepper.Business
                 Bitmap videoFrame = reader.ReadVideoFrame();
                 ImageSource imageSource = parser.ImageSourceForBitmap(videoFrame);
                 videoFrames.Add(imageSource);
+                videoFrame.Dispose();
             }
 
             reader.Close();

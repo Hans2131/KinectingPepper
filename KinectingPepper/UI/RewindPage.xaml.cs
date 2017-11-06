@@ -21,21 +21,18 @@ namespace Kinect_ing_Pepper.UI
     {
         private ECameraType _selectedCamera = ECameraType.Color;
         private readonly Frame navigationFrame;
-        private int _currentFrameNumber = 0;
 
-        private List<BodyFrameWrapper> _framesFromDisk;
+        private List<BodyFrameWrapper> _skeletonFrames;
+        private List<ImageSource> _videoFrames;
+
         private bool _playBackFrames = false;
+        private int _currentFrameNumber = 0;
         private DateTime _timeLastFrameRender = DateTime.MinValue;
 
         public RewindPage(Frame navigationFrame)
         {
             InitializeComponent();
             this.navigationFrame = navigationFrame;
-        }
-
-        ~RewindPage()
-        {
-            bodyViewer.CloseVideoFile();
         }
 
         private void Page_Unloaded(object sender, RoutedEventArgs e)
@@ -56,7 +53,7 @@ namespace Kinect_ing_Pepper.UI
                 CompositionTarget.Rendering -= CompositionTarget_Rendering;
                 _currentFrameNumber = 0;
                 _timeLastFrameRender = DateTime.MinValue;
-                _framesFromDisk = null;
+                _skeletonFrames = null;
             }
 
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
@@ -75,21 +72,19 @@ namespace Kinect_ing_Pepper.UI
                     //string fullVideoUri = Path.Combine(Path.GetDirectoryName(fullPath), videoFileName);
                     openFileDialog1.FileName = "";
                     openFileDialog1.InitialDirectory = Path.GetDirectoryName(fullXMLPath);
-                    openFileDialog1.Filter = "MP4 files (*.mp4)|*.mp4";
+                    openFileDialog1.Filter = "MP4 files (*.mp4)|*.mpeg";
 
                     if (openFileDialog1.ShowDialog() == true)
                     {
                         string fullVideoUri = openFileDialog1.FileName;
-
-                        bodyViewer.ReadVideoFile(fullVideoUri);
-                        //bodyViewer.ShowNextVideoFrame();
+                        _videoFrames = IOKinectData.Instance.GetFramesFromVideo(fullVideoUri);
                     }
 
-                    _framesFromDisk = IOKinectData.Instance.DeserializeFromXML(fullXMLPath);
+                    _skeletonFrames = IOKinectData.Instance.DeserializeFromXML(fullXMLPath);
                     _playBackFrames = true;
 
                     slrFrameProgress.Maximum = 0;
-                    slrFrameProgress.Maximum = _framesFromDisk.Count - 1;
+                    slrFrameProgress.Maximum = _skeletonFrames.Count - 1;
 
                     CompositionTarget.Rendering += CompositionTarget_Rendering;
                 }
@@ -104,9 +99,8 @@ namespace Kinect_ing_Pepper.UI
         {
             if (_playBackFrames)
             {
-                if (_currentFrameNumber == _framesFromDisk.Count - 1)
+                if (_currentFrameNumber == _skeletonFrames.Count - 1)
                 {
-                    //_playBackFrames = false;
                     _currentFrameNumber = 0;
                     _timeLastFrameRender = DateTime.MinValue;
                 }
@@ -115,13 +109,13 @@ namespace Kinect_ing_Pepper.UI
                     if (_timeLastFrameRender == DateTime.MinValue)
                     {
                         _timeLastFrameRender = DateTime.Now;
-                        bodyViewer.ShowNextVideoFrame();
-                        bodyViewer.RenderBodies(_framesFromDisk[_currentFrameNumber].TrackedBodies, ECameraType.Depth);
+                        bodyViewer.KinectImage = _videoFrames[_currentFrameNumber];
+                        bodyViewer.RenderBodies(_skeletonFrames[_currentFrameNumber].TrackedBodies, ECameraType.Depth);
                     }
                     else
                     {
                         TimeSpan timePast = DateTime.Now - _timeLastFrameRender;
-                        TimeSpan expectedTimeSpan = _framesFromDisk[_currentFrameNumber + 1].RelativeTime - _framesFromDisk[_currentFrameNumber].RelativeTime;
+                        TimeSpan expectedTimeSpan = _skeletonFrames[_currentFrameNumber + 1].RelativeTime - _skeletonFrames[_currentFrameNumber].RelativeTime;
 
                         if (timePast >= expectedTimeSpan)
                         {
@@ -132,8 +126,8 @@ namespace Kinect_ing_Pepper.UI
                             txtFrameTime.Text = (_currentFrameNumber + 1).ToString();
                             slrFrameProgress.Value = _currentFrameNumber;
 
-                            bodyViewer.ShowNextVideoFrame();
-                            bodyViewer.RenderBodies(_framesFromDisk[_currentFrameNumber].TrackedBodies, ECameraType.Depth);
+                            bodyViewer.KinectImage = _videoFrames[_currentFrameNumber];
+                            bodyViewer.RenderBodies(_skeletonFrames[_currentFrameNumber].TrackedBodies, ECameraType.Depth);
                         }
                     }
                 }
@@ -163,7 +157,7 @@ namespace Kinect_ing_Pepper.UI
 
         private void slrFrameProgress_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (_framesFromDisk != null)
+            if (_skeletonFrames != null)
             {
                 int currentValue = (int)slrFrameProgress.Value;
                 if (currentValue != _currentFrameNumber)
@@ -173,7 +167,8 @@ namespace Kinect_ing_Pepper.UI
                     _currentFrameNumber = currentValue;
 
                     txtFrameTime.Text = (_currentFrameNumber + 1).ToString();
-                    bodyViewer.RenderBodies(_framesFromDisk[_currentFrameNumber].TrackedBodies, ECameraType.Depth);
+                    bodyViewer.KinectImage = _videoFrames[_currentFrameNumber];
+                    bodyViewer.RenderBodies(_skeletonFrames[_currentFrameNumber].TrackedBodies, ECameraType.Depth);
                 }
             }
         }
