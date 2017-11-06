@@ -198,7 +198,7 @@ namespace Kinect_ing_Pepper.UI
                 {
                     string filePath = generator.FolderPathName + "/" +
                         dateTime.ToShortDateString() + " " + dateTime.ToLongTimeString().Replace(":", " ") + ".xml";
-                    PersistFrames.Instance.SerializeToXML(_recordedBodyFrames, filePath);
+                    IOKinectData.Instance.SerializeToXML(_recordedBodyFrames, filePath);
 
                     //reset recorded frames
                     _recordedBodyFrames = new List<BodyFrameWrapper>();

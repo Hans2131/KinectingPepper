@@ -1,24 +1,27 @@
-﻿using Kinect_ing_Pepper.Models;
+﻿using AForge.Video.FFMPEG;
+using Kinect_ing_Pepper.Models;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using System.Xml.Serialization;
 
 namespace Kinect_ing_Pepper.Business
 {
-    public class PersistFrames
+    public class IOKinectData
     {
-        private static PersistFrames _instance;
+        private static IOKinectData _instance;
 
-        public static PersistFrames Instance
+        public static IOKinectData Instance
         {
             get
             {
                 if (_instance == null)
-                    _instance = new PersistFrames();
+                    _instance = new IOKinectData();
 
                 return _instance;
             }
@@ -45,6 +48,26 @@ namespace Kinect_ing_Pepper.Business
                 return bodyFrames;
             }
             return null;
+        }
+
+        public List<ImageSource> GetFramesFromVideo(string fileName)
+        {
+            VideoFileReader reader = new VideoFileReader();
+            reader.Open(fileName);
+
+            FrameParser parser = new FrameParser();
+            List<ImageSource> videoFrames = new List<ImageSource>();
+
+            for (int i = 0; i < reader.FrameCount; i++)
+            {
+                Bitmap videoFrame = reader.ReadVideoFrame();
+                ImageSource imageSource = parser.ImageSourceForBitmap(videoFrame);
+                videoFrames.Add(imageSource);
+            }
+
+            reader.Close();
+
+            return videoFrames;
         }
     }
 }
