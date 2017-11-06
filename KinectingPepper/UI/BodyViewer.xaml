@@ -10,7 +10,7 @@
     <Grid>
         <Viewbox Margin="0,0,0,0">
             <Grid>
-                <MediaElement Name="mediaElement" Stretch="UniformToFill" LoadedBehavior="Manual"></MediaElement>
+                <MediaElement Name="mediaElement" Stretch="UniformToFill" LoadedBehavior="Manual" Width="512" Height="424"></MediaElement>
                 <Image Name="camera" Source="{Binding KinectImage}" Stretch="UniformToFill" HorizontalAlignment="Left"/>
                 <Canvas Name="canvasSkeleton" />
             </Grid>

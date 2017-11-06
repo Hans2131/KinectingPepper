@@ -69,7 +69,7 @@ namespace Kinect_ing_Pepper.UI
                     //videoFileName = splitted[0] + " " + splitted[1] + "_" + splitted[2] + "_" + splitted[3];
                     //string fullVideoUri = Path.Combine(Path.GetDirectoryName(fullPath), videoFileName);
                     openFileDialog1.InitialDirectory = Path.GetDirectoryName(fullXMLPath);
-                    openFileDialog1.Filter = "MP4 files (*.mp4)|*.mp4";
+                    openFileDialog1.Filter = "MP4 files (*.mp4)|*.mpeg";
 
                     if (openFileDialog1.ShowDialog() == true)
                     {
@@ -163,7 +163,7 @@ namespace Kinect_ing_Pepper.UI
                     _currentFrameNumber = currentValue;
 
                     txtFrameTime.Text = (_currentFrameNumber + 1).ToString();
-                    bodyViewer.RenderBodies(_framesFromDisk[_currentFrameNumber].TrackedBodies, ECameraType.Color);
+                    bodyViewer.RenderBodies(_framesFromDisk[_currentFrameNumber].TrackedBodies, ECameraType.Depth);
                 }
             }
         }
