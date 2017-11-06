@@ -124,11 +124,7 @@ namespace Kinect_ing_Pepper.UI
         }
         private void pausePlayer_Click(object sender, RoutedEventArgs e)
         {
-            if (_playBackFrames)
-            {
-                _playBackFrames = false;
-                _timeLastFrameRender = DateTime.MinValue;
-            }
+            StopPlaying();
         }
 
         private void navigateToRecordPage_Click(object sender, RoutedEventArgs e)
@@ -143,13 +139,48 @@ namespace Kinect_ing_Pepper.UI
                 int currentValue = (int)slrFrameProgress.Value;
                 if (currentValue != _currentFrameNumber)
                 {
-                    _playBackFrames = false;
-                    _timeLastFrameRender = DateTime.MinValue;
+                    StopPlaying();
                     _currentFrameNumber = currentValue;
 
                     txtFrameTime.Text = (_currentFrameNumber + 1).ToString();
                     bodyViewer.RenderBodies(_framesFromDisk[_currentFrameNumber].TrackedBodies, ECameraType.Color);
                 }
+            }
+        }
+
+        private void Page_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.D)
+            {
+                StopPlaying();
+
+                if (_currentFrameNumber < _framesFromDisk.Count - 1)
+                {
+                    _currentFrameNumber++;
+                }
+            }
+
+            if (e.Key == System.Windows.Input.Key.A)
+            {
+                StopPlaying();
+
+                if (_currentFrameNumber > 0)
+                {
+                    _currentFrameNumber--;
+                }
+            }
+
+            txtFrameTime.Text = (_currentFrameNumber + 1).ToString();
+            slrFrameProgress.Value = _currentFrameNumber;
+            bodyViewer.RenderBodies(_framesFromDisk[_currentFrameNumber].TrackedBodies, ECameraType.Color);
+        }
+
+        private void StopPlaying()
+        {
+            if (_playBackFrames)
+            {
+                _playBackFrames = false;
+                _timeLastFrameRender = DateTime.MinValue;
             }
         }
     }
