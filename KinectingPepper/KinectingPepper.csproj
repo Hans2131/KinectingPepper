@@ -109,10 +109,11 @@
     <Compile Include="Business\CSV_saver.cs" />
     <Compile Include="Business\FrameParser.cs" />
     <Compile Include="Business\Logger.cs" />
-    <Compile Include="Business\IOKinectData.cs" />
+    <Compile Include="Business\DiskIOManager.cs" />
     <Compile Include="Business\KinectHelper.cs" />
     <Compile Include="Business\BodyHelper.cs" />
     <Compile Include="Business\PathNameGenerator.cs" />
+    <Compile Include="Business\VideoWriter.cs" />
     <Compile Include="Enums\ECameraTypes.cs" />
     <Compile Include="MediaSink\MediaSink.cs" />
     <Compile Include="Models\BodyDrawing.cs" />

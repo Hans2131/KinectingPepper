@@ -11,6 +11,9 @@ using Kinect_ing_Pepper.Models;
 using System.Windows.Media;
 using Microsoft.Win32;
 using System.IO;
+using System.Drawing;
+using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Kinect_ing_Pepper.UI
 {
@@ -28,6 +31,9 @@ namespace Kinect_ing_Pepper.UI
         private bool _playBackFrames = false;
         private int _currentFrameNumber = 0;
         private DateTime _timeLastFrameRender = DateTime.MinValue;
+
+        private VideoWriter _videoWriter = null;
+        private Task _videoProcessingTask = null;
 
         public RewindPage(Frame navigationFrame)
         {
@@ -77,10 +83,34 @@ namespace Kinect_ing_Pepper.UI
                     if (openFileDialog1.ShowDialog() == true)
                     {
                         string fullVideoUri = openFileDialog1.FileName;
-                        _videoFrames = IOKinectData.Instance.GetFramesFromVideo(fullVideoUri);
+                        //_videoFrames = DiskIOManager.Instance.GetFramesFromVideo(fullVideoUri);
+                        List<Bitmap> frames = DiskIOManager.Instance.GetFramesAsBitmap(fullVideoUri);
+
+                        if (_videoProcessingTask != null)
+                        {
+                            if (_videoProcessingTask.IsCompleted)
+                            {
+                                _videoWriter.Dispose();
+                                _videoProcessingTask.Dispose();
+                            }
+                            else
+                            {
+                                _videoProcessingTask.Wait();
+                                _videoWriter.Dispose();
+                                _videoProcessingTask.Dispose();
+                            }
+                        }
+
+                        _videoWriter = new VideoWriter();                        
+                        _videoProcessingTask = _videoWriter.ProcessVideoFramesAsync(@"C:\images\Test\test2.mp4", frames[0].Width, frames[0].Height);
+                        foreach (Bitmap frame in frames)
+                        {
+                            _videoWriter.EnqueueFrame(frame);
+                        }
+                        _videoWriter.Finish();
                     }
 
-                    _skeletonFrames = IOKinectData.Instance.DeserializeFromXML(fullXMLPath);
+                    _skeletonFrames = DiskIOManager.Instance.DeserializeFromXML(fullXMLPath);
                     _playBackFrames = true;
 
                     slrFrameProgress.Maximum = 0;
@@ -195,8 +225,11 @@ namespace Kinect_ing_Pepper.UI
             txtFrameTime.Text = (_currentFrameNumber + 1).ToString();
             slrFrameProgress.Value = _currentFrameNumber;
 
-            bodyViewer.KinectImage = _videoFrames[_currentFrameNumber];
-            bodyViewer.RenderBodies(_skeletonFrames[_currentFrameNumber].TrackedBodies, _selectedCamera);
+            if (_videoFrames != null && _videoFrames.Count > 0)
+                bodyViewer.KinectImage = _videoFrames[_currentFrameNumber];
+
+            if (_skeletonFrames != null && _skeletonFrames.Count > 0)
+                bodyViewer.RenderBodies(_skeletonFrames[_currentFrameNumber].TrackedBodies, _selectedCamera);
         }
     }
 }
