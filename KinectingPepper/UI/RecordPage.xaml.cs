@@ -7,10 +7,10 @@ using System.Windows.Controls;
 using Microsoft.Kinect;
 using Kinect_ing_Pepper.Enums;
 using Kinect_ing_Pepper.Business;
-using System.Xml.Serialization;
-using System.IO;
 using Kinect_ing_Pepper.Models;
 using System.Windows.Media.Imaging;
+using System.Threading.Tasks;
+using Kinect_ing_Pepper.Utils;
 
 namespace Kinect_ing_Pepper.UI
 {
@@ -19,13 +19,18 @@ namespace Kinect_ing_Pepper.UI
     /// </summary>
     public partial class RecordPage : Page
     {
-        private MultiSourceFrameReader _reader;
-        private ECameraType _selectedCamera = ECameraType.Color;
         private readonly RewindPage rewindPage;
         private readonly Frame navigationFrame;
+        private ECameraType _selectedCamera = ECameraType.Color;
+
+        private MultiSourceFrameReader _reader;
         private List<BodyFrameWrapper> _recordedBodyFrames = new List<BodyFrameWrapper>();
         private bool _recordingStarted = false;
+        private VideoWriter _videoWriter = null;
+        private Task _videoProcessingTask = null;
+
         private PathNameGenerator generator = new PathNameGenerator();
+        private FrameParser _frameParser = new FrameParser();
 
         public RecordPage(Frame navigationFrame)
         {
@@ -61,99 +66,79 @@ namespace Kinect_ing_Pepper.UI
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-
-            WriteableBitmap cbmp = null;
-            WriteableBitmap dbmp = null;
-
-            FrameParser frameParser = new FrameParser();
             MultiSourceFrame frame = e.FrameReference.AcquireFrame();
-            using (ColorFrame cf = (frame.ColorFrameReference.AcquireFrame())) {
-                using (DepthFrame df = (frame.DepthFrameReference.AcquireFrame()))
+            if (frame != null)
+            {
+                ColorFrame colorFrame = frame.ColorFrameReference.AcquireFrame();
+
+                DepthFrame depthFrame = frame.DepthFrameReference.AcquireFrame();
+
+                BodyFrame bodyFrame = frame.BodyFrameReference.AcquireFrame();
+
+                ProcesKinectFrames(bodyFrame, colorFrame, depthFrame);
+            }
+        }
+
+        private void ProcesKinectFrames(BodyFrame bodyFrame, ColorFrame colorFrame, DepthFrame depthFrame)
+        {
+            WriteableBitmap colorWBitmap = null;
+            WriteableBitmap depthWBitmap = null;
+
+            if (colorFrame != null)
+            {
+                colorWBitmap = _frameParser.ParseToWriteableBitmap(colorFrame);
+            }
+
+            if (depthFrame != null)
+            {
+                depthWBitmap = _frameParser.ParseToWriteableBitmap(depthFrame);
+
+                if (_recordingStarted && _videoWriter != null)
                 {
-                    if (cf != null)
-                    {
-                        cbmp = frameParser.ParseToBitmap(cf);
-                    }
-                    if (df != null)
-                    {
-                        dbmp = frameParser.ParseToBitmap(df);
-                    }
+                    _videoWriter.EnqueueFrame(depthWBitmap);
+                }
+            }
 
-                    //Save data if needed
-                    if (MediaSink.RGBMediaSink.IsRunning())
+            switch (_selectedCamera)
+            {
+                case ECameraType.Color:
+                    // Color
+                    bodyViewer.UpdateFrameCounter();
+                    bodyViewer.KinectImage = colorWBitmap;
+                    break;
+                case ECameraType.Depth:
+                    // Depth
+                    bodyViewer.UpdateFrameCounter();
+                    bodyViewer.KinectImage = depthWBitmap;
+
+                    break;
+                default:
+                    break;
+            }
+
+            if (bodyFrame != null)
+            {
+                BodyFrameWrapper bodyFrameWrapper = new BodyFrameWrapper(bodyFrame);
+
+                //choose body to record? why not safe all..
+                if (bodyFrameWrapper.TrackedBodies.Any())
+                {
+                    bodyViewer.RenderBodies(bodyFrameWrapper.TrackedBodies, _selectedCamera);
+
+                    if (_recordingStarted)
                     {
-                        if (cbmp != null)
-                        {
-                            //cbmp.Unlock();
-                            MediaSink.RGBMediaSink.ProcessBitmap(cbmp.BackBuffer);
-                        }
-                    }
-
-                    if (MediaSink.DepthMediaSink.IsRunning())
-                    {
-                        if (dbmp != null)
-                        {
-                            //dbmp.Unlock();
-                            MediaSink.DepthMediaSink.ProcessBitmap(dbmp.BackBuffer);
-                        }
-                    }
-
-                    switch (_selectedCamera)
-                    {
-
-                        case ECameraType.Color:
-                            // Color
-                            bodyViewer.UpdateFrameCounter();
-                            bodyViewer.KinectImage = cbmp;
-                            break;
-                        case ECameraType.Depth:
-                            // Depth
-                            bodyViewer.UpdateFrameCounter();
-                            bodyViewer.KinectImage = dbmp;
-
-                            break;
-                        case ECameraType.Infrared:
-                            using (InfraredFrame infraredFrame = frame.InfraredFrameReference.AcquireFrame())
-                            {
-                                if (infraredFrame != null)
-                                {
-                                    bodyViewer.UpdateFrameCounter();
-                                    bodyViewer.KinectImage = frameParser.ParseToBitmap(infraredFrame);
-                                }
-                            }
-                            break;
-                        default:
-                            break;
+                        _recordedBodyFrames.Add(bodyFrameWrapper);
                     }
                 }
             }
-            
-            using (BodyFrame bodyFrame = frame.BodyFrameReference.AcquireFrame())
+            else
             {
-                if (bodyFrame != null)
-                {
-                    BodyFrameWrapper bodyFrameWrapper = new BodyFrameWrapper(bodyFrame);
-
-                    //choose body to record? why not safe all..
-                    if (bodyFrameWrapper.TrackedBodies.Any())
-                    {
-                        bodyViewer.RenderBodies(bodyFrameWrapper.TrackedBodies, _selectedCamera);
-
-                        if (_recordingStarted)
-                        {
-                            _recordedBodyFrames.Add(bodyFrameWrapper);
-                        }
-                    }
-                }
-                else
-                {
-                    bodyViewer.DeleteUntrackedBodies(null);
-                }
+                bodyViewer.DeleteUntrackedBodies(null);
             }
         }
 
 
-        private void cbxCameraType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void CbxCameraType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Enum.TryParse(cbxCameraType.SelectedValue.ToString(), out _selectedCamera);
         }
@@ -167,7 +152,7 @@ namespace Kinect_ing_Pepper.UI
             RestartKinect();
         }
 
-        private void startRecordingButton_Click(object sender, RoutedEventArgs e)
+        private void StartRecordingButton_Click(object sender, RoutedEventArgs e)
         {
             if (KinectHelper.Instance.KinectSensor.IsAvailable && !_recordingStarted)
             {
@@ -178,35 +163,53 @@ namespace Kinect_ing_Pepper.UI
 
                 if (cbxCameraType.SelectedIndex == 0)
                 {
-                    MediaSink.RGBMediaSink.SetPath(generator.CreateFilePathName("RGB").ToArray());
-                    MediaSink.RGBMediaSink.Start();
                     cbxCameraType.IsEnabled = false;
                 }
                 if (cbxCameraType.SelectedIndex == 1)
                 {
-                    string pathName = generator.CreateFilePathName("Depth");
-                    MediaSink.DepthMediaSink.SetPath(pathName.ToArray());
-                    MediaSink.DepthMediaSink.Start();
                     cbxCameraType.IsEnabled = false;
                 }
 
+                StartVideoWriter();
                 _recordingStarted = true;
 
                 Logger.Instance.LogMessage("Recording started in: " + generator.FolderPathName);
             }
         }
 
-        private void newPersonButton_Click(object sender, RoutedEventArgs e)
+        private void StartVideoWriter()
+        {
+            if (_videoProcessingTask != null)
+            {
+                if (_videoProcessingTask.IsCompleted)
+                {
+                    _videoWriter.Dispose();
+                    _videoProcessingTask.Dispose();
+                }
+                else
+                {
+                    _videoProcessingTask.Wait();
+                    _videoWriter.Dispose();
+                    _videoProcessingTask.Dispose();
+                }
+            }
+
+            _videoWriter = new VideoWriter();
+            _videoProcessingTask = _videoWriter.ProcessVideoFramesAsync(@"C:\images\Test\test3.mp4", Constants.DepthWidth, Constants.DepthHeight);
+        }
+
+        private void NewPersonButton_Click(object sender, RoutedEventArgs e)
         {
             generator.CreateFolder();
             Logger.Instance.LogMessage("New person started in folder: " + generator.FolderPathName);
         }
 
-        private void stopRecordingButton_Click(object sender, RoutedEventArgs e)
+        private void StopRecordingButton_Click(object sender, RoutedEventArgs e)
         {
             if (_recordingStarted)
             {
                 _recordingStarted = false;
+                _videoWriter.Finish();
                 DateTime dateTime = DateTime.Now;
 
                 btnRestartKinect.IsEnabled = true;
@@ -228,14 +231,11 @@ namespace Kinect_ing_Pepper.UI
 
                 cbxCameraType.IsEnabled = true;
 
-                MediaSink.RGBMediaSink.Stop();
-                MediaSink.DepthMediaSink.Stop();
-
                 Logger.Instance.LogMessage("Recording stopped, files saved in " + generator.FolderPathName);
             }
         }
 
-        private void navigateToRewindPage_Click(object sender, RoutedEventArgs e)
+        private void NavigateToRewindPage_Click(object sender, RoutedEventArgs e)
         {
             navigationFrame.Navigate(rewindPage);
         }

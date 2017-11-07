@@ -1,6 +1,8 @@
 ﻿using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -36,7 +38,7 @@ namespace Kinect_ing_Pepper.Business
         /// </summary>
         private const float InfraredOutputValueMaximum = 1.0f;
 
-        public WriteableBitmap ParseToBitmap(ColorFrame colorFrame)
+        public WriteableBitmap ParseToWriteableBitmap(ColorFrame colorFrame)
         {
             WriteableBitmap colorBitmap = new WriteableBitmap(colorFrame.FrameDescription.Width, colorFrame.FrameDescription.Height, 96.0, 96.0, PixelFormats.Bgr32, null);
 
@@ -57,7 +59,7 @@ namespace Kinect_ing_Pepper.Business
             return colorBitmap;
         }
 
-        public WriteableBitmap ParseToBitmap(DepthFrame depthFrame)
+        public WriteableBitmap ParseToWriteableBitmap(DepthFrame depthFrame)
         {
             WriteableBitmap depthBitmap = new WriteableBitmap(depthFrame.FrameDescription.Width, depthFrame.FrameDescription.Height, 96.0, 96.0, PixelFormats.Gray8, null);
 
@@ -72,6 +74,20 @@ namespace Kinect_ing_Pepper.Business
             }
 
             return depthBitmap;
+        }
+
+        public Bitmap ParseToBitmap(WriteableBitmap writableBitmap)
+        {
+            Bitmap bitmap;
+            using (MemoryStream outStream = new MemoryStream())
+            {
+                BitmapEncoder encoder = new BmpBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(writableBitmap));
+                encoder.Save(outStream);
+
+                bitmap = new Bitmap(outStream);
+            }
+            return bitmap;
         }
 
         private unsafe byte[] ConvertDepthFrameData(FrameDescription depthFrameDescription, IntPtr depthFrameData, uint depthFrameDataSize, ushort minDepth, ushort maxDepth)
@@ -94,7 +110,7 @@ namespace Kinect_ing_Pepper.Business
             return depthPixels;
         }
 
-        public WriteableBitmap ParseToBitmap(InfraredFrame infraredFrame)
+        public WriteableBitmap ParseToWriteableBitmap(InfraredFrame infraredFrame)
         {
             WriteableBitmap infraredBitmap = new WriteableBitmap(infraredFrame.FrameDescription.Width, infraredFrame.FrameDescription.Height, 96.0, 96.0, PixelFormats.Gray32Float, null);
 

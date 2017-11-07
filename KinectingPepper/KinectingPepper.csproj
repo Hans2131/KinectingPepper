@@ -108,7 +108,8 @@
     </ApplicationDefinition>
     <Compile Include="Business\CSV_saver.cs" />
     <Compile Include="Business\FrameParser.cs" />
-    <Compile Include="Business\Logger.cs" />
+    <Compile Include="Utils\Constants.cs" />
+    <Compile Include="Utils\Logger.cs" />
     <Compile Include="Business\DiskIOManager.cs" />
     <Compile Include="Business\KinectHelper.cs" />
     <Compile Include="Business\BodyHelper.cs" />
@@ -196,7 +197,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Extensions\" />
-    <Folder Include="Serialization\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

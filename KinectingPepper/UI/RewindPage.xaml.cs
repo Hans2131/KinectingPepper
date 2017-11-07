@@ -32,9 +32,6 @@ namespace Kinect_ing_Pepper.UI
         private int _currentFrameNumber = 0;
         private DateTime _timeLastFrameRender = DateTime.MinValue;
 
-        private VideoWriter _videoWriter = null;
-        private Task _videoProcessingTask = null;
-
         public RewindPage(Frame navigationFrame)
         {
             InitializeComponent();
@@ -84,30 +81,7 @@ namespace Kinect_ing_Pepper.UI
                     {
                         string fullVideoUri = openFileDialog1.FileName;
                         //_videoFrames = DiskIOManager.Instance.GetFramesFromVideo(fullVideoUri);
-                        List<Bitmap> frames = DiskIOManager.Instance.GetFramesAsBitmap(fullVideoUri);
-
-                        if (_videoProcessingTask != null)
-                        {
-                            if (_videoProcessingTask.IsCompleted)
-                            {
-                                _videoWriter.Dispose();
-                                _videoProcessingTask.Dispose();
-                            }
-                            else
-                            {
-                                _videoProcessingTask.Wait();
-                                _videoWriter.Dispose();
-                                _videoProcessingTask.Dispose();
-                            }
-                        }
-
-                        _videoWriter = new VideoWriter();                        
-                        _videoProcessingTask = _videoWriter.ProcessVideoFramesAsync(@"C:\images\Test\test2.mp4", frames[0].Width, frames[0].Height);
-                        foreach (Bitmap frame in frames)
-                        {
-                            _videoWriter.EnqueueFrame(frame);
-                        }
-                        _videoWriter.Finish();
+                        //List<Bitmap> frames = DiskIOManager.Instance.GetFramesAsBitmap(fullVideoUri);
                     }
 
                     _skeletonFrames = DiskIOManager.Instance.DeserializeFromXML(fullXMLPath);

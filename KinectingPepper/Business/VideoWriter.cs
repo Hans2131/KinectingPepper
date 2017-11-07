@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace Kinect_ing_Pepper.Business
 {
@@ -17,8 +18,9 @@ namespace Kinect_ing_Pepper.Business
 
         private VideoFileWriter _writer;
         private bool _isStarted = false;
-        private ConcurrentQueue<Bitmap> _recordQueue = new ConcurrentQueue<Bitmap>();
+        private ConcurrentQueue<WriteableBitmap> _recordQueue = new ConcurrentQueue<WriteableBitmap>();
         private SemaphoreSlim _writerSemaphore = new SemaphoreSlim(1);
+        private FrameParser _frameParser = new FrameParser();
 
         public void TestVideoWriter(List<Bitmap> videoFrames, string fileName, int width, int height)
         {
@@ -45,13 +47,15 @@ namespace Kinect_ing_Pepper.Business
                 while (true)
                 {
 
-                    Bitmap videoFrame;
+                    WriteableBitmap videoFrame;
                     if (_recordQueue.TryDequeue(out videoFrame))
                     {                      
                         try
                         {
+                            Bitmap bitmap = _frameParser.ParseToBitmap(videoFrame);
+
                             await _writerSemaphore.WaitAsync();
-                            await Task.Run(() => _writer.WriteVideoFrame(videoFrame));
+                            await Task.Run(() => _writer.WriteVideoFrame(bitmap));
                         }
                         catch (Exception ex)
                         {
@@ -73,7 +77,7 @@ namespace Kinect_ing_Pepper.Business
             }).ConfigureAwait(false);
         }
 
-        public void EnqueueFrame(Bitmap videoFrame)
+        public void EnqueueFrame(WriteableBitmap videoFrame)
         {
             _recordQueue.Enqueue(videoFrame);
         }
