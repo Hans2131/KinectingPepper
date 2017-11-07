@@ -80,7 +80,7 @@ namespace Kinect_ing_Pepper.UI
                     if (openFileDialog1.ShowDialog() == true)
                     {
                         string fullVideoUri = openFileDialog1.FileName;
-                        //_videoFrames = DiskIOManager.Instance.GetFramesFromVideo(fullVideoUri);
+                        _videoFrames = DiskIOManager.Instance.GetFramesFromVideo(fullVideoUri);
                         //List<Bitmap> frames = DiskIOManager.Instance.GetFramesAsBitmap(fullVideoUri);
                     }
 

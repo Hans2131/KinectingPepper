@@ -18,7 +18,7 @@ namespace Kinect_ing_Pepper.Business
 
         private VideoFileWriter _writer;
         private bool _isStarted = false;
-        private ConcurrentQueue<WriteableBitmap> _recordQueue = new ConcurrentQueue<WriteableBitmap>();
+        private ConcurrentQueue<Bitmap> _recordQueue = new ConcurrentQueue<Bitmap>();
         private SemaphoreSlim _writerSemaphore = new SemaphoreSlim(1);
         private FrameParser _frameParser = new FrameParser();
 
@@ -47,19 +47,18 @@ namespace Kinect_ing_Pepper.Business
                 while (true)
                 {
 
-                    WriteableBitmap videoFrame;
+                    Bitmap videoFrame;
                     if (_recordQueue.TryDequeue(out videoFrame))
-                    {                      
+                    {
                         try
                         {
-                            Bitmap bitmap = _frameParser.ParseToBitmap(videoFrame);
-
                             await _writerSemaphore.WaitAsync();
-                            await Task.Run(() => _writer.WriteVideoFrame(bitmap));
+                            await Task.Run(() => _writer.WriteVideoFrame(videoFrame));
+                            Debug.WriteLine("Video frame written, in queue: " + _recordQueue.Count.ToString());
                         }
                         catch (Exception ex)
                         {
-                            Debug.WriteLine(ex.Message);
+                            Debug.WriteLine(ex);
                         }
                         finally
                         {
@@ -74,11 +73,12 @@ namespace Kinect_ing_Pepper.Business
                         }
                     }
                 }
-            }).ConfigureAwait(false);
+            });
         }
 
-        public void EnqueueFrame(WriteableBitmap videoFrame)
+        public void EnqueueFrame(Bitmap videoFrame)
         {
+            //WriteableBitmap frameCopy = videoFrame.Clone();
             _recordQueue.Enqueue(videoFrame);
         }
 
@@ -94,7 +94,8 @@ namespace Kinect_ing_Pepper.Business
             {
                 _writerSemaphore.Wait();
                 _writer.Dispose();
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex);
             }
@@ -102,6 +103,23 @@ namespace Kinect_ing_Pepper.Business
             {
                 _writerSemaphore.Dispose();
             }
+        }
+
+        public void CreateVideoFile(string fileName, int width, int height)
+        {
+            _writer = new VideoFileWriter();
+            _writer.Open(fileName, width, height, 25, VideoCodec.MPEG4);
+        }
+
+        public void WriteVideoFrame(Bitmap videoFrame)
+        {
+            _writer.WriteVideoFrame(videoFrame);
+        }
+
+        public void CloseFile()
+        {
+            _writer.Close();
+            _writer.Dispose();
         }
     }
 }

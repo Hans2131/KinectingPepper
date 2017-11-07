@@ -81,7 +81,7 @@ namespace Kinect_ing_Pepper.Business
             Bitmap bitmap;
             using (MemoryStream outStream = new MemoryStream())
             {
-                BitmapEncoder encoder = new BmpBitmapEncoder();
+                BitmapEncoder encoder = new PngBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create(writableBitmap));
                 encoder.Save(outStream);
 
