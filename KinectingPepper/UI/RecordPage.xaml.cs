@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Threading.Tasks;
 using Kinect_ing_Pepper.Utils;
 using System.Drawing;
+using System.Diagnostics;
 
 namespace Kinect_ing_Pepper.UI
 {
@@ -65,16 +66,29 @@ namespace Kinect_ing_Pepper.UI
             btnStartRecording.IsEnabled = true;
             btnStopRecording.IsEnabled = false;
         }
-
+        private int counter = 0;
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-            bool bodyFound = false;
             bool recordFrame = _recordingStarted;
 
             WriteableBitmap colorWBitmap = null;
             WriteableBitmap depthWBitmap = null;
 
             MultiSourceFrame frame = e.FrameReference.AcquireFrame();
+
+            using (DepthFrame depthFrame = frame.DepthFrameReference.AcquireFrame())
+            {
+                if (depthFrame != null)
+                {
+                    depthWBitmap = _frameParser.ParseToWriteableBitmap(depthFrame);
+                    if (_selectedCamera == ECameraType.Depth)
+                    {
+                        bodyViewer.UpdateFrameCounter();
+                        bodyViewer.KinectImage = depthWBitmap;
+                    }
+                }
+            }
+
             using (BodyFrame bodyFrame = frame.BodyFrameReference.AcquireFrame())
             {
                 if (bodyFrame != null)
@@ -88,8 +102,16 @@ namespace Kinect_ing_Pepper.UI
                         if (recordFrame)
                         {
                             _recordedBodyFrames.Add(bodyFrameWrapper);
+                            if (depthWBitmap != null)
+                            {
+                                Bitmap videoFrame = _frameParser.ParseToBitmap(depthWBitmap);
+                                _videoWriter.WriteVideoFrame(videoFrame);
+                            }
+                            else
+                            {
+                                Logger.Instance.LogMessage("DepthVideoFrame missing at: " + _recordedBodyFrames.Count.ToString());
+                            }
                         }
-                        bodyFound = true;
                     }
                 }
                 else
@@ -100,39 +122,16 @@ namespace Kinect_ing_Pepper.UI
 
             if (frame != null)
             {
-                //using (ColorFrame colorFrame = frame.ColorFrameReference.AcquireFrame())
-                //{
-                //    if (colorFrame != null)
-                //    {
-                //        colorWBitmap = _frameParser.ParseToWriteableBitmap(colorFrame);
-
-                //        if (_selectedCamera == ECameraType.Color)
-                //        {
-                //            // Color
-                //            bodyViewer.UpdateFrameCounter();
-                //            bodyViewer.KinectImage = colorWBitmap;
-                //        }
-                //    }
-                //}
-
-                using (DepthFrame depthFrame = frame.DepthFrameReference.AcquireFrame())
+                if (_selectedCamera == ECameraType.Color)
                 {
-                    if (depthFrame != null)
+                    using (ColorFrame colorFrame = frame.ColorFrameReference.AcquireFrame())
                     {
-                        depthWBitmap = _frameParser.ParseToWriteableBitmap(depthFrame);
+                        if (colorFrame != null)
+                        {
+                            colorWBitmap = _frameParser.ParseToWriteableBitmap(colorFrame);
 
-                        if (_selectedCamera == ECameraType.Depth)
-                        {
-                            // Color
                             bodyViewer.UpdateFrameCounter();
-                            bodyViewer.KinectImage = depthWBitmap;
-                        }
-                        bodyFound = true;
-                        if (recordFrame && _videoWriter != null && bodyFound)
-                        {
-                            Bitmap videoFrame = _frameParser.ParseToBitmap(depthWBitmap);
-                            _videoWriter.WriteVideoFrame(videoFrame);
-                            bodyFound = false;
+                            bodyViewer.KinectImage = colorWBitmap;
                         }
                     }
                 }
@@ -172,31 +171,15 @@ namespace Kinect_ing_Pepper.UI
                 }
 
                 _timeRecordingStart = DateTime.Now;
-                _fileNameBase = generator.FolderPathName + "/" +
-                        _timeRecordingStart.ToShortDateString() + " " + _timeRecordingStart.ToLongTimeString().Replace(":", "_");
+                _fileNameBase = _timeRecordingStart.ToShortDateString() + " " + _timeRecordingStart.ToLongTimeString().Replace(":", "_");
 
-                StartVideoWriter();
+                string depthFileName = generator.FolderPathName + "/" + "Depth " + _fileNameBase + ".mp4";
+                _videoWriter = new VideoWriter();
+                _videoWriter.CreateVideoFile(depthFileName, Constants.DepthWidth, Constants.DepthHeight);
                 _recordingStarted = true;
 
                 Logger.Instance.LogMessage("Recording started in: " + generator.FolderPathName);
             }
-        }
-
-        private void StartVideoWriter()
-        {
-            ////if (_videoProcessingTask != null)
-            //{
-            //    if(_videoProcessingTask.Status == TaskStatus.Running)
-            //    {
-            //        _videoProcessingTask.Wait();
-            //    }
-            //    _videoWriter.Dispose();
-            //    _videoProcessingTask = null;
-            //}
-
-            _videoWriter = new VideoWriter();
-            //_videoProcessingTask = _videoWriter.ProcessVideoFramesAsync(_fileNameBase + ".mp4", Constants.DepthWidth, Constants.DepthHeight);
-            _videoWriter.CreateVideoFile(_fileNameBase + ".mp4", Constants.DepthWidth, Constants.DepthHeight);
         }
 
         private void NewPersonButton_Click(object sender, RoutedEventArgs e)
@@ -219,13 +202,13 @@ namespace Kinect_ing_Pepper.UI
 
                 if (_recordedBodyFrames.Any())
                 {
-
-                    DiskIOManager.Instance.SerializeToXML(_recordedBodyFrames, _fileNameBase + ".xml");
+                    string xmlFileName = generator.FolderPathName + "/" + _fileNameBase + ".xml";
+                    DiskIOManager.Instance.SerializeToXML(_recordedBodyFrames, xmlFileName);
 
                     //reset recorded frames
                     _recordedBodyFrames = new List<BodyFrameWrapper>();
 
-                    Logger.Instance.LogMessage("Xml saved as: " + _fileNameBase + ".xml");
+                    Logger.Instance.LogMessage("Xml saved as: " + xmlFileName);
                 }
 
                 cbxCameraType.IsEnabled = true;
