@@ -23,7 +23,7 @@
                 <ColumnDefinition Width="auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Name="btnSelectFile" Margin="10 5 10 0" HorizontalAlignment="Left" Padding="20 5 20 5" Click="selectFile_Click">Select file</Button>
-            <Button Grid.Column="1" Name="btnXMLtoCSV" Margin="10,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="40" Click="csv_Click">C:\xml_to_csv to CSVs</Button>
+            <Button Grid.Column="1" Name="btnXMLtoCSV" Margin="10,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="40" Click="csv_Click">C:\xml__to__csv to CSVs</Button>
             <Button Grid.Column="3" Name="btnResetPlayer" Margin="50 5 20 0" HorizontalAlignment="Left" Padding="10 5 10 5" Click="resetPlayer_Click">Reset</Button>
             <Button Grid.Column="4" Name="btnPausePlayer" Margin="20 5 20 0" HorizontalAlignment="Left" Padding="10 5 10 5" Click="pausePlayer_Click">Pause</Button>
             <Slider Grid.Column="5" Name="sdrRewindSlider" Margin="40 10 40 0" Maximum="100" TickPlacement="BottomRight" TickFrequency="1"/>

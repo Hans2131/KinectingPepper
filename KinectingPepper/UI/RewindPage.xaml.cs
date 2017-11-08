@@ -32,11 +32,6 @@ namespace Kinect_ing_Pepper.UI
 
         }
 
-        private void cbxCameraType_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            //Enum.TryParse<ECameraType>(cbxCameraType.SelectedValue.ToString(), out _selectedCamera);
-        }
-
         private void selectFile_Click(object sender, RoutedEventArgs e)
         {
             
