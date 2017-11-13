@@ -33,9 +33,6 @@ namespace Kinect_ing_Pepper.UI
         private PathNameGenerator generator = new PathNameGenerator();
         private FrameParser _frameParser = new FrameParser();
 
-        private DateTime _timeRecordingStart = DateTime.MinValue;
-        private string _fileNameBase = "";
-
         public RecordPage(Frame navigationFrame)
         {
             InitializeComponent();
@@ -43,7 +40,6 @@ namespace Kinect_ing_Pepper.UI
             Logger.Instance.Init(logList);
             Logger.Instance.LogMessage("Application started!");
 
-            generator.CreateFolder();
             rewindPage = new RewindPage(navigationFrame);
             this.navigationFrame = navigationFrame;
 
@@ -178,10 +174,9 @@ namespace Kinect_ing_Pepper.UI
                     cbxCameraType.IsEnabled = false;
                 }
 
-                _timeRecordingStart = DateTime.Now;
-                _fileNameBase = _timeRecordingStart.ToShortDateString() + " " + _timeRecordingStart.ToLongTimeString().Replace(":", "_");
 
-                string depthFileName = generator.FolderPathName + "/" + "Depth " + _fileNameBase + ".mp4";
+                generator.SetFileNameBase();
+                string depthFileName = generator.FolderPathName + "/" + "Depth " + generator.FileNameBase + ".mp4";
                 _depthVideoWriter = new VideoWriter(true);
                 _depthVideoWriter.Start(depthFileName, Constants.DepthWidth, Constants.DepthHeight);
 
@@ -212,7 +207,7 @@ namespace Kinect_ing_Pepper.UI
 
                 if (_recordedBodyFrames.Any())
                 {
-                    string xmlFileName = generator.FolderPathName + "/" + _fileNameBase + ".xml";
+                    string xmlFileName = generator.FolderPathName + "/" + generator.FileNameBase + ".xml";
                     DiskIOManager.Instance.SerializeToXML(_recordedBodyFrames, xmlFileName);
 
                     //reset recorded frames
@@ -222,7 +217,6 @@ namespace Kinect_ing_Pepper.UI
                 }
 
                 cbxCameraType.IsEnabled = true;
-
                 Logger.Instance.LogMessage("Recording stopped, files saved in " + generator.FolderPathName);
             }
         }
