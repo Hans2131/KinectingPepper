@@ -39,52 +39,6 @@ namespace Kinect_ing_Pepper.Business
         /// </summary>
         private const float InfraredOutputValueMaximum = 1.0f;
 
-        public WriteableBitmap ParseToWriteableBitmap(ColorFrame colorFrame)
-        {
-            int width = colorFrame.FrameDescription.Width;
-            int height = colorFrame.FrameDescription.Height;
-
-            WriteableBitmap colorBitmap = new WriteableBitmap(width, height, 96.0, 96.0, PixelFormats.Bgr32, null);
-
-            using (KinectBuffer colorBuffer = colorFrame.LockRawImageBuffer())
-            {
-                colorBitmap.Lock();
-
-                //byte[] pixelBuffer = new byte[width * height * 4];
-                //colorFrame.CopyConvertedFrameDataToArray(pixelBuffer, ColorImageFormat.Bgra);
-
-                colorFrame.CopyConvertedFrameDataToIntPtr(
-                    colorBitmap.BackBuffer,
-                    (uint)(colorFrame.FrameDescription.Width * colorFrame.FrameDescription.Height * 4),
-                    ColorImageFormat.Bgra);
-
-                colorBitmap.AddDirtyRect(new Int32Rect(0, 0, colorBitmap.PixelWidth, colorBitmap.PixelHeight));
-                //colorBitmap.WritePixels(new Int32Rect(0, 0, colorBitmap.PixelWidth, colorBitmap.PixelHeight), pixelBuffer, colorBitmap.PixelWidth * 4, 0);
-                colorBitmap.Unlock();
-            }
-
-            return colorBitmap;
-        }
-
-        public Bitmap ParseToBitmap(ColorFrame colorFrame)
-        {
-            int width = colorFrame.FrameDescription.Width;
-            int height = colorFrame.FrameDescription.Height;
-
-            Bitmap bitmapFrame = new Bitmap(colorFrame.FrameDescription.Width, colorFrame.FrameDescription.Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-
-            BitmapData bitmapData = bitmapFrame.LockBits(new Rectangle(0, 0,
-            width, height), ImageLockMode.WriteOnly, bitmapFrame.PixelFormat);
-            IntPtr backBuffer = bitmapData.Scan0;
-            colorFrame.CopyConvertedFrameDataToIntPtr(
-                    backBuffer,
-                    (uint)(colorFrame.FrameDescription.Width * colorFrame.FrameDescription.Height * 4),
-                    ColorImageFormat.Bgra);
-
-            bitmapFrame.UnlockBits(bitmapData);
-            return bitmapFrame;
-        }
-
         public unsafe void ParseToBitmaps(ColorFrame colorFrame, out Bitmap bitmap, out WriteableBitmap writeableBitmap)
         {
             int width = colorFrame.FrameDescription.Width;
@@ -110,48 +64,6 @@ namespace Kinect_ing_Pepper.Business
                 colorBitmap.UnlockBits(bitmapData);
                 bitmap = colorBitmap;
             }
-        }
-
-        public WriteableBitmap ParseToWriteableBitmap(DepthFrame depthFrame)
-        {
-            WriteableBitmap depthBitmap = new WriteableBitmap(depthFrame.FrameDescription.Width, depthFrame.FrameDescription.Height, 96.0, 96.0, PixelFormats.Gray8, null);
-
-            using (KinectBuffer depthBuffer = depthFrame.LockImageBuffer())
-            {
-                ushort maxDepth = ushort.MaxValue;
-                //maxDepth = depthFrame.DepthMaxReliableDistance; //TODO: make this a setting?
-
-                byte[] depthPixels = ConvertDepthFrameData(depthFrame.FrameDescription, depthBuffer.UnderlyingBuffer, depthBuffer.Size, depthFrame.DepthMinReliableDistance, maxDepth);
-
-                depthBitmap.WritePixels(new Int32Rect(0, 0, depthBitmap.PixelWidth, depthBitmap.PixelHeight), depthPixels, depthBitmap.PixelWidth, 0);
-            }
-
-            return depthBitmap;
-        }
-
-        public Bitmap ParseToBitmap(DepthFrame depthFrame)
-        {
-            int width = depthFrame.FrameDescription.Width;
-            int height = depthFrame.FrameDescription.Height;
-
-            Bitmap bitmapFrame = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format8bppIndexed);
-
-            ushort maxDepth = ushort.MaxValue;
-            //maxDepth = depthFrame.DepthMaxReliableDistance; //TODO: make this a setting?
-
-            using (KinectBuffer depthBuffer = depthFrame.LockImageBuffer())
-            {
-                byte[] depthPixels = ConvertDepthFrameData(depthFrame.FrameDescription, depthBuffer.UnderlyingBuffer, depthBuffer.Size, depthFrame.DepthMinReliableDistance, maxDepth);
-
-                BitmapData bitmapData = bitmapFrame.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, bitmapFrame.PixelFormat);
-
-                IntPtr intPointer = bitmapData.Scan0;
-                Marshal.Copy(depthPixels, 0, intPointer, depthPixels.Length);
-
-                bitmapFrame.UnlockBits(bitmapData);
-            }
-
-            return bitmapFrame;
         }
 
         public void ParseToBitmaps(DepthFrame depthFrame, out Bitmap bitmap, out WriteableBitmap writeableBitmap)
@@ -182,20 +94,6 @@ namespace Kinect_ing_Pepper.Business
             }
         }
 
-        public Bitmap ParseToBitmap(WriteableBitmap writableBitmap)
-        {
-            Bitmap bitmap;
-            using (MemoryStream outStream = new MemoryStream())
-            {
-                BitmapEncoder encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(writableBitmap));
-                encoder.Save(outStream);
-
-                bitmap = new Bitmap(outStream);
-            }
-            return bitmap;
-        }
-
         private unsafe byte[] ConvertDepthFrameData(FrameDescription depthFrameDescription, IntPtr depthFrameData, uint depthFrameDataSize, ushort minDepth, ushort maxDepth)
         {
             // depth frame data is a 16 bit value
@@ -211,30 +109,6 @@ namespace Kinect_ing_Pepper.Business
                 // To convert to a byte, we're mapping the depth value to the byte range.
                 // Values outside the reliable depth range are mapped to 0 (black).
                 depthPixels[i] = (byte)(depth >= minDepth && depth <= maxDepth ? (depth / MAP_DEPTH_TO_BYTE) : 0);
-            }
-
-            return depthPixels;
-        }
-
-        private unsafe byte[] ConvertDepthFrameData2(FrameDescription depthFrameDescription, IntPtr depthFrameData, uint depthFrameDataSize, ushort minDepth, ushort maxDepth)
-        {
-            // depth frame data is a 16 bit value
-            ushort* frameData = (ushort*)depthFrameData;
-            byte[] depthPixels = new byte[depthFrameDescription.Width * depthFrameDescription.Height * 2];
-
-            // convert depth to a visual representation
-            for (int i = 0; i < (int)(depthFrameDataSize / depthFrameDescription.BytesPerPixel); ++i)
-            {
-                // Get the depth for this pixel
-                ushort depth = frameData[i];
-
-                // To convert to a byte, we're mapping the depth value to the byte range.
-                // Values outside the reliable depth range are mapped to 0 (black).
-                //depthPixels[i] = (byte)(depth >= minDepth && depth <= maxDepth ? (depth / MAP_DEPTH_TO_BYTE) : 0);
-
-                byte[] pixelBits = BitConverter.GetBytes(depth);
-                depthPixels[i * 2] = pixelBits[0];
-                depthPixels[i * 2 + 1] = pixelBits[1];
             }
 
             return depthPixels;

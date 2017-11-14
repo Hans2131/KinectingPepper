@@ -116,7 +116,6 @@
     <Compile Include="Business\PathNameGenerator.cs" />
     <Compile Include="Business\VideoWriter.cs" />
     <Compile Include="Enums\ECameraTypes.cs" />
-    <Compile Include="MediaSink\MediaSink.cs" />
     <Compile Include="Models\BodyDrawing.cs" />
     <Compile Include="Models\BodyFrameWrapper.cs" />
     <Compile Include="Models\JointRow.cs" />
