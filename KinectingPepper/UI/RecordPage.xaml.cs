@@ -46,6 +46,8 @@ namespace Kinect_ing_Pepper.UI
             RestartKinect();
             cbxCameraType.ItemsSource = Enum.GetValues(typeof(ECameraType)).Cast<ECameraType>();
             cbxCameraType.SelectedIndex = 1;
+
+            txtPersonNumber.Text = Properties.Settings.Default.PersonNumber.ToString();
         }
 
         private void RestartKinect()
@@ -188,6 +190,24 @@ namespace Kinect_ing_Pepper.UI
 
         private void NewPersonButton_Click(object sender, RoutedEventArgs e)
         {
+            int personNumber;
+            if (!int.TryParse(txtPersonNumber.Text, out personNumber))
+            {
+                Logger.Instance.LogMessage("Invalid personnumber!");
+            }
+            else
+            {
+                if (personNumber == Properties.Settings.Default.PersonNumber)
+                {
+                    personNumber++;
+
+                }
+                Properties.Settings.Default.PersonNumber = personNumber;
+                Properties.Settings.Default.Save();
+                txtPersonNumber.Text = personNumber.ToString();
+            }
+
+
             generator.CreateFolder();
             Logger.Instance.LogMessage("New person started in folder: " + generator.FolderPathName);
         }

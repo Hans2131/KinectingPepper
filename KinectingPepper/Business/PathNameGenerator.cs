@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Kinect_ing_Pepper.Business
 {
-    class PathNameGenerator
-    {
+    public class PathNameGenerator
+    {      
         private string _folderPathName = "";
         public string FolderPathName
         {
@@ -40,6 +40,7 @@ namespace Kinect_ing_Pepper.Business
             dateTimeString = dateTimeString.Replace(":", "_");
             string path = _defaultPackage + dateTimeString;
             path = path.Replace(" ", "_");
+            path += " P" + Properties.Settings.Default.PersonNumber.ToString();
             System.IO.Directory.CreateDirectory(path);
             _folderPathName = path;
         }
