@@ -5,5 +5,8 @@
     <Setting Name="PersonNumber" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">60</Value>
     </Setting>
+    <Setting Name="LastPlaybackPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\images\Pepper</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

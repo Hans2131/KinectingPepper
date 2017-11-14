@@ -61,13 +61,19 @@ namespace Kinect_ing_Pepper.UI
 
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
-            openFileDialog1.InitialDirectory = @"C:\images\Pepper\";
+            openFileDialog1.InitialDirectory = Properties.Settings.Default.LastPlaybackPath;
             openFileDialog1.Filter = "XML files (*.xml)|*.xml";
 
             if (openFileDialog1.ShowDialog() == true)
             {
                 try
                 {
+                    if (Properties.Settings.Default.LastPlaybackPath != Path.GetDirectoryName(openFileDialog1.FileName))
+                    {
+                        Properties.Settings.Default.LastPlaybackPath = Path.GetDirectoryName(openFileDialog1.FileName);
+                        Properties.Settings.Default.Save();
+                    }
+
                     string fullXMLPath = openFileDialog1.FileName;
                     string fullMp4Path = Path.GetDirectoryName(fullXMLPath) + "\\Depth " + Path.GetFileName(fullXMLPath).Replace(".xml", ".mp4");
 
