@@ -99,6 +99,31 @@ namespace Kinect_ing_Pepper.UI
             }
         }
 
+        public void CleanData()
+        {
+            string folder = @"C:\images\Pepper opnames studenten - Cleaned FileNames";
+            string[] subdirectoryEntries = Directory.GetDirectories(folder);
+
+            foreach (string subfolder in subdirectoryEntries)
+            {
+                string subDir = Path.Combine(folder, subfolder);
+                string[] fileEntries = Directory.GetFiles(subDir);
+
+                string[] xmlFiles = fileEntries.Where(x => x.EndsWith(".xml")).ToArray();
+                string[] mp4Files = fileEntries.Where(x => x.EndsWith(".mp4")).ToArray();
+
+                for (int i = 0; i < xmlFiles.Length; i++)
+                {
+                    string mp4Name = Path.GetFileNameWithoutExtension(mp4Files[i]);
+                    string newXmlName = Path.Combine(Path.GetDirectoryName(xmlFiles[i]), mp4Name.Replace("Depth_", "") + ".xml");
+                    File.Move(xmlFiles[i], newXmlName);
+
+                    string newMpName = mp4Files[i].Replace("Depth_", "Depth ");
+                    File.Move(mp4Files[i], newMpName);
+                }
+            }
+        }
+
         private void CompositionTarget_Rendering(object sender, EventArgs e)
         {
             if (_playBackFrames)
