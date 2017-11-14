@@ -69,21 +69,22 @@ namespace Kinect_ing_Pepper.UI
                 try
                 {
                     string fullXMLPath = openFileDialog1.FileName;
-                    //string videoFileName = "Depth_" + Path.GetFileName(fullPath).Replace(".xml", ".mp4");
-                    //string[] splitted = videoFileName.Split(new char[] { ' ' });
-                    //videoFileName = splitted[0] + " " + splitted[1] + "_" + splitted[2] + "_" + splitted[3];
-                    //string fullVideoUri = Path.Combine(Path.GetDirectoryName(fullPath), videoFileName);
-                    openFileDialog1.FileName = "";
-                    openFileDialog1.InitialDirectory = Path.GetDirectoryName(fullXMLPath);
-                    openFileDialog1.Filter = "MP4 files (*.mp4)|*.mp4";
+                    string fullMp4Path = Path.GetDirectoryName(fullXMLPath) + "\\Depth " + Path.GetFileName(fullXMLPath).Replace(".xml", ".mp4");
 
-                    if (openFileDialog1.ShowDialog() == true)
+                    if (!File.Exists(fullMp4Path))
                     {
-                        string fullVideoUri = openFileDialog1.FileName;
-                        _videoFrames = DiskIOManager.Instance.GetFramesFromVideo(fullVideoUri);
-                        //List<Bitmap> frames = DiskIOManager.Instance.GetFramesAsBitmap(fullVideoUri);
-                    }
+                        openFileDialog1.FileName = "";
+                        openFileDialog1.InitialDirectory = Path.GetDirectoryName(fullXMLPath);
+                        openFileDialog1.Filter = "MP4 files (*.mp4)|*.mp4";
 
+                        if (openFileDialog1.ShowDialog() == true)
+                        {
+                            fullMp4Path = openFileDialog1.FileName;
+                        }
+                    }
+                    _videoFrames = null;
+
+                    _videoFrames = DiskIOManager.Instance.GetFramesFromVideo(fullMp4Path);
                     _skeletonFrames = DiskIOManager.Instance.DeserializeFromXML(fullXMLPath);
                     _playBackFrames = true;
 

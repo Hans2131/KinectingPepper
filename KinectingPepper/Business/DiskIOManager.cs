@@ -36,7 +36,7 @@ namespace Kinect_ing_Pepper.Business
         {
             if (File.Exists(filePath))
             {
-                XmlSerializer deserializer = new XmlSerializer(typeof(List<BodyFrameWrapper>));
+                XmlSerializer deserializer = new XmlSerializer(typeof(List<BodyFrameWrapper>)); //throws ['System.IO.FileNotFoundException' in mscorlib.dll], no idea if solvable
                 TextReader reader = new StreamReader(filePath);
                 List<BodyFrameWrapper> bodyFrames = (List<BodyFrameWrapper>)deserializer.Deserialize(reader); ;
                 reader.Close();
@@ -58,31 +58,13 @@ namespace Kinect_ing_Pepper.Business
             {
                 Bitmap videoFrame = reader.ReadVideoFrame();
                 ImageSource imageSource = parser.ImageSourceForBitmap(videoFrame);
+                imageSource.Freeze();
                 videoFrames.Add(imageSource);
                 videoFrame.Dispose();
             }
 
             reader.Close();
-
-            return videoFrames;
-        }
-
-        public List<Bitmap> GetFramesAsBitmap(string fileName)
-        {
-            VideoFileReader reader = new VideoFileReader();
-            reader.Open(fileName);
-
-            //FrameParser parser = new FrameParser();
-            List<Bitmap> videoFrames = new List<Bitmap>();
-
-            for (int i = 0; i < reader.FrameCount; i++)
-            {
-                Bitmap videoFrame = reader.ReadVideoFrame();
-                //ImageSource imageSource = parser.ImageSourceForBitmap(videoFrame);
-                videoFrames.Add(videoFrame);
-            }
-
-            reader.Close();
+            reader.Dispose();
 
             return videoFrames;
         }
