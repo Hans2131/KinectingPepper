@@ -15,20 +15,18 @@ namespace Kinect_ing_Pepper.Models
 {
     public class BodyDrawing
     {
-        private double _jointRadius = 10;
-        private double _jointLineThickness = 5;
-        private Brush _ellipseBrush = Brushes.DarkBlue;
-        private Brush _ellipseFillBrush = Brushes.Blue;
+        private double _jointRadius = 5;
+        private double _jointLineThickness = 3;
+        private Brush _ellipseBrush = Brushes.DarkRed;
+        private Brush _ellipseFillBrush = Brushes.Red;
 
-        private double _boneLineThickness = 5;
+        private double _boneLineThickness = 2;
         private Brush _boneBrush = Brushes.Green;
 
         private Brush _inferredBrush = Brushes.LawnGreen;
         private double _inferredThickness = 1;
 
         public ulong TrackingId { get; set; }
-
-        //public Dictionary<JointType, Point> JointPoints { get; set; }
 
         public Dictionary<JointType, Ellipse> JointEllipses { get; set; }
 
