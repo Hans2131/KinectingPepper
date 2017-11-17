@@ -227,27 +227,20 @@ namespace Kinect_ing_Pepper.UI
 
                 if (_recordedBodyFrames.Any())
                 {
-                    string filePath = generator.FolderPathName + "/" +
-                        dateTime.ToShortDateString() + " " + dateTime.ToLongTimeString().Replace(":", " ");
+                    //string csvPath = generator.FolderPathName + "/" + generator.FileNameBase + ".csv";
+                    //CSVWriter csvSaver = new CSVWriter();
+                    //csvSaver.SaveSkeletonFrames(_recordedBodyFrames, csvPath);
 
-                    string csvPath = filePath + ".csv";
-                    var csvSaver = new CSV_saver();
-                    foreach( var frame in _recordedBodyFrames)
-                    {
-                        csvSaver.saveSkeletonFrame(frame);
-                    }
-                    csvSaver.saveCSV(csvPath);
                     string xmlFileName = generator.FolderPathName + "/" + generator.FileNameBase + ".xml";
                     DiskIOManager.Instance.SerializeToXML(_recordedBodyFrames, xmlFileName);
 
                     //reset recorded frames
                     _recordedBodyFrames = new List<BodyFrameWrapper>();
 
-                    Logger.Instance.LogMessage("XML&CSV saved as: " + filePath);
+                    Logger.Instance.LogMessage("XML&CSV saved in: " + generator.FolderPathName + " as " + generator.FileNameBase);
                 }
 
                 cbxCameraType.IsEnabled = true;
-                Logger.Instance.LogMessage("Recording stopped, files saved in " + generator.FolderPathName);
             }
         }
 

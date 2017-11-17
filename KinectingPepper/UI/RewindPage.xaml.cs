@@ -247,12 +247,12 @@ namespace Kinect_ing_Pepper.UI
                         var serializer = new XmlSerializer(typeof(List<BodyFrameWrapper>));
                         var reader = new StreamReader(file.FullName);
                         var bfws = (List<BodyFrameWrapper>)serializer.Deserialize(reader);
-                        var csvSaver = new CSV_saver();
+                        var csvSaver = new CSVWriter();
                         foreach(var bfw in bfws)
                         {
-                            csvSaver.saveSkeletonFrame(bfw);
+                            csvSaver.SaveSkeletonFrame(bfw);
                         }
-                        csvSaver.saveCSV(csvName);
+                        csvSaver.SaveCSV(csvName);
 
 
                     }
