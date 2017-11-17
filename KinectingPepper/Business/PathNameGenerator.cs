@@ -27,7 +27,7 @@ namespace Kinect_ing_Pepper.Business
         {
             get
             {
-                return _folderPathName;
+                return _fileNameBase;
             }
         }
 
