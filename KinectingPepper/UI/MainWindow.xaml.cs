@@ -1,7 +1,5 @@
 ﻿using System.Windows;
 
-using Kinect_ing_Pepper.MediaSink;
-
 namespace Kinect_ing_Pepper.UI
 {
     /// <summary>

@@ -28,6 +28,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -71,6 +72,10 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AForge.Video.FFMPEG, Version=2.2.5.0, Culture=neutral, PublicKeyToken=03563089b1be05dd, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\AForge.Video.FFMPEG.dll</HintPath>
+    </Reference>
     <Reference Include="CsvHelper, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
       <HintPath>..\packages\CsvHelper.2.16.3.0\lib\net45\CsvHelper.dll</HintPath>
       <Private>True</Private>
@@ -81,6 +86,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -102,13 +108,14 @@
     </ApplicationDefinition>
     <Compile Include="Business\CSV_saver.cs" />
     <Compile Include="Business\FrameParser.cs" />
-    <Compile Include="Business\Logger.cs" />
-    <Compile Include="Business\PersistFrames.cs" />
+    <Compile Include="Utils\Constants.cs" />
+    <Compile Include="Utils\Logger.cs" />
+    <Compile Include="Business\DiskIOManager.cs" />
     <Compile Include="Business\KinectHelper.cs" />
     <Compile Include="Business\BodyHelper.cs" />
     <Compile Include="Business\PathNameGenerator.cs" />
+    <Compile Include="Business\VideoWriter.cs" />
     <Compile Include="Enums\ECameraTypes.cs" />
-    <Compile Include="MediaSink\MediaSink.cs" />
     <Compile Include="Models\BodyDrawing.cs" />
     <Compile Include="Models\BodyFrameWrapper.cs" />
     <Compile Include="Models\JointRow.cs" />
@@ -189,7 +196,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Extensions\" />
-    <Folder Include="Serialization\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

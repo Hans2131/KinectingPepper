@@ -6,9 +6,31 @@ using System.Threading.Tasks;
 
 namespace Kinect_ing_Pepper.Business
 {
-    class PathNameGenerator
-    {
-        public string FolderPathName { get; set; }
+    public class PathNameGenerator
+    {      
+        private string _folderPathName = "";
+        public string FolderPathName
+        {
+            get
+            {
+                if (_folderPathName == "")
+                {
+                    CreateFolder();
+                }
+                return _folderPathName;
+            }
+
+        }
+
+        private string _fileNameBase = "";
+        public string FileNameBase
+        {
+            get
+            {
+                return _folderPathName;
+            }
+        }
+
         private string _defaultPackage = "C:/images/Pepper/";
 
         public void CreateFolder()
@@ -18,20 +40,27 @@ namespace Kinect_ing_Pepper.Business
             dateTimeString = dateTimeString.Replace(":", "_");
             string path = _defaultPackage + dateTimeString;
             path = path.Replace(" ", "_");
+            path += " P" + Properties.Settings.Default.PersonNumber.ToString();
             System.IO.Directory.CreateDirectory(path);
-            this.FolderPathName = path; 
+            _folderPathName = path;
         }
 
         private string CreateFileName(string cameraType)
         {
             DateTime dateTime = DateTime.Now;
             string dateTimeString = dateTime.ToString().Replace(":", "_");
-            return cameraType + "_" + dateTimeString + ".mp4";
+            return cameraType + "_" + dateTimeString + ".mpeg";
         }
-        
+
         public string CreateFilePathName(string cameraType)
         {
             return FolderPathName + "/" + CreateFileName(cameraType);
+        }
+
+        public void SetFileNameBase()
+        {
+            DateTime timeRecordingStart = DateTime.Now;
+            _fileNameBase = timeRecordingStart.ToShortDateString() + " " + timeRecordingStart.ToLongTimeString().Replace(":", "_");
         }
     }
 }

@@ -23,16 +23,20 @@
                 <ColumnDefinition Width="*"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Name="btnRestartKinect" Margin="10 0 10 0" Padding="15 10 15 10" VerticalAlignment="Center" HorizontalAlignment="Left" Click="RestartKinectButton_Click">Restart Kinect</Button>
             <Label  Grid.Column="1" Margin="20 10 0 0" HorizontalAlignment="Left" VerticalAlignment="Top">Select camera type:</Label>
-            <ComboBox Grid.Column="2" Name="cbxCameraType" Margin="20 15 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="cbxCameraType_SelectionChanged"></ComboBox>
-            <Button Grid.Column="3" Name="btnStartRecording" Margin="10 0 10 0" Click="startRecordingButton_Click" HorizontalAlignment="Stretch">Start</Button>
-            <Button Grid.Column="4" Name="btnStopRecording" Margin="10 0 10 0" Click="stopRecordingButton_Click"  HorizontalAlignment="Stretch">Stop</Button>
-            <Button Grid.Column="5" Name="btnNewPerson" Margin="10 0 10 0" Click="newPersonButton_Click"  HorizontalAlignment="Stretch">New Person</Button>
-            <Label Grid.Column="6" Name="placeholder2"></Label>
-            <Button Grid.Column="7" Name="btnRewindPageNavigation" Margin="20 5 20 0" Click="navigateToRewindPage_Click" Padding="10 5 10 5" HorizontalAlignment="Right">Rewind Page</Button>
+            <ComboBox Grid.Column="2" Name="cbxCameraType" Margin="20 15 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="CbxCameraType_SelectionChanged"></ComboBox>
+            <Button Grid.Column="3" Name="btnStartRecording" Margin="10 0 10 0" Click="StartRecordingButton_Click" HorizontalAlignment="Stretch">Start</Button>
+            <Button Grid.Column="4" Name="btnStopRecording" Margin="10 0 10 0" Click="StopRecordingButton_Click"  HorizontalAlignment="Stretch">Stop</Button>
+            <Button Grid.Column="5" Name="btnNewPerson" Margin="10 0 10 0" Click="NewPersonButton_Click"  HorizontalAlignment="Stretch" Width="150">New Person</Button>
+            <Label Grid.Column="6" Width="100" Margin="0 0 0 0">Person number:</Label>
+            <TextBox Grid.Column="6" Name="txtPersonNumber" Width="100" Height="15" Margin="0 20 0 0"></TextBox>
+            <Label Grid.Column="8" Name="placeholder2"></Label>
+            <Button Grid.Column="9" Name="btnRewindPageNavigation" Margin="20 5 20 0" Click="NavigateToRewindPage_Click" Padding="10 5 10 5" HorizontalAlignment="Right">Rewind Page</Button>
         </Grid>
         <ListView Name="logList" Grid.Row="2" Margin="5"></ListView>
     </Grid>

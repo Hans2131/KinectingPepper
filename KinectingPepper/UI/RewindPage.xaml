@@ -6,13 +6,14 @@
       xmlns:local="clr-namespace:Kinect_ing_Pepper.UI"
       mc:Ignorable="d" 
       d:DesignHeight="300" d:DesignWidth="300"
-      Title="DataViewer" Unloaded="Page_Unloaded">
+      Title="DataViewer" Unloaded="Page_Unloaded" KeyDown="Page_KeyDown">
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="60"></RowDefinition>
         </Grid.RowDefinitions>
+        <local:BodyViewer Grid.Row="0" x:Name="bodyViewer" Margin="10"/>
         <Grid Grid.Row="1" x:Name="playerFooter" Margin="10 0 10 15">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"></ColumnDefinition>
@@ -21,13 +22,27 @@
                 <ColumnDefinition Width="auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
                 <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
+                <ColumnDefinition Width="auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Name="btnSelectFile" Margin="10 5 10 0" HorizontalAlignment="Left" Padding="20 5 20 5" Click="selectFile_Click">Select file</Button>
-            <Button Grid.Column="1" Name="btnXMLtoCSV" Margin="10,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="40" Click="csv_Click">C:\xml__to__csv to CSVs</Button>
-            <Button Grid.Column="3" Name="btnResetPlayer" Margin="50 5 20 0" HorizontalAlignment="Left" Padding="10 5 10 5" Click="resetPlayer_Click">Reset</Button>
+            <Label  Grid.Column="1" Name="lblSelectCameraType" Margin="10 10 0 0" HorizontalAlignment="Left" VerticalAlignment="Top">Select camera type:</Label>
+            <ComboBox Grid.Column="2" Name="cbxCameraType" Margin="10 15 0 0" Padding="10 0 10 0" HorizontalAlignment="Left" VerticalAlignment="Top" SelectionChanged="cbxCameraType_SelectionChanged"></ComboBox>
+            <Button Grid.Column="3" Name="btnStartPlayer" Margin="50 5 20 0" HorizontalAlignment="Left" Padding="10 5 10 5" Click="startPlayer_Click">Play</Button>
+            <Button Grid.Column="1" Name="btnXMLtoCSV" Margin="10,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="40" Click="csv_Click">C:\xml__to__csv to CSVs</Button>            
             <Button Grid.Column="4" Name="btnPausePlayer" Margin="20 5 20 0" HorizontalAlignment="Left" Padding="10 5 10 5" Click="pausePlayer_Click">Pause</Button>
-            <Slider Grid.Column="5" Name="sdrRewindSlider" Margin="40 10 40 0" Maximum="100" TickPlacement="BottomRight" TickFrequency="1"/>
-            <Button Grid.Column="7" Name="btnNavigateToRecordPage" Margin="20 5 20 0" HorizontalAlignment="Right" Padding="10 5 10 5" Click="navigateToRecordPage_Click">Record Page</Button>
+            <Slider Grid.Column="5" Name="slrFrameProgress" Margin="40 10 40 0" Maximum="100" TickPlacement="BottomRight" TickFrequency="1" IsMoveToPointEnabled="True" ValueChanged="slrFrameProgress_ValueChanged"/>
+            <Label Grid.Column="6">Framenumber:</Label>
+            <TextBox Grid.Column="7" Name="txtFrameTime" Text=" - ">
+                <TextBox.Style>
+                    <Style TargetType="TextBox">
+                        <Setter Property="IsReadOnly" Value="True" />
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="TextWrapping" Value="Wrap" />
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
+            <Button Grid.Column="8" Name="btnNavigateToRecordPage" Margin="20 5 20 0" HorizontalAlignment="Right" Padding="10 5 10 5" Click="navigateToRecordPage_Click">Record Page</Button>
         </Grid>
     </Grid>
 </Page>

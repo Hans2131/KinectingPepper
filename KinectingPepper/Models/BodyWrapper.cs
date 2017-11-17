@@ -45,9 +45,7 @@ namespace Kinect_ing_Pepper.Models
         public HandState HandLeftState;
         public TrackingConfidence HandRightConfidence;
 
-        //include these?
-        //public FrameEdges ClippedEdges;
-        //public IReadOnlyDictionary<Expression, DetectionResult> Expressions;
+        public FrameEdges ClippedEdges;
 
         //Don't remove empty constructor, neccesary for serialization
         public BodyWrapper() { }
@@ -61,6 +59,8 @@ namespace Kinect_ing_Pepper.Models
 
             Joints = body.Joints.Select(x => new JointWrapper(x.Value)).ToList();
             Joints.ForEach(x => x.Orientation = ToVector4(body.JointOrientations[x.JointType]));
+
+            ClippedEdges = body.ClippedEdges;
         }
 
         private System.Numerics.Vector4 ToVector4(JointOrientation jointOrientation)
