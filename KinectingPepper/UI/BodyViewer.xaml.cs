@@ -18,7 +18,6 @@ using Kinect_ing_Pepper.Enums;
 using Kinect_ing_Pepper.Business;
 using Kinect_ing_Pepper.Models;
 using System.Diagnostics;
-using AForge.Video.FFMPEG;
 using System.Drawing;
 
 namespace Kinect_ing_Pepper.UI

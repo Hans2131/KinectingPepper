@@ -1,4 +1,4 @@
-﻿using AForge.Video.FFMPEG;
+﻿using Accord.Video.FFMPEG;
 using Kinect_ing_Pepper.Models;
 using System.Collections.Generic;
 using System.Drawing;
@@ -11,6 +11,7 @@ namespace Kinect_ing_Pepper.Business
     public class DiskIOManager
     {
         private static DiskIOManager _instance;
+        private VideoFileReader _videoFileReader;
 
         public static DiskIOManager Instance
         {
@@ -67,6 +68,38 @@ namespace Kinect_ing_Pepper.Business
             reader.Dispose();
 
             return videoFrames;
+        }
+
+        public void InitVideoReader(string fileName)
+        {
+            if (_videoFileReader != null && _videoFileReader.IsOpen)
+            {
+                CloseVideoReader();
+            }
+            _videoFileReader = new VideoFileReader();
+            _videoFileReader.Open(fileName);
+        }
+
+        public ImageSource GetFrameByIndex(int index)
+        {
+            if (index < _videoFileReader.FrameCount && _videoFileReader.IsOpen)
+            {
+                Bitmap videoFrame = _videoFileReader.ReadVideoFrame(index);
+                FrameParser parser = new FrameParser();
+                ImageSource imageSource = parser.ImageSourceForBitmap(videoFrame);
+                imageSource.Freeze();
+                return imageSource;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public void CloseVideoReader()
+        {
+            _videoFileReader.Close();
+            _videoFileReader.Dispose();
         }
     }
 }
