@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 
-namespace Kinect_ing_Pepper.Business
+namespace Kinect_ing_Pepper.Utils
 {
     public class Logger
     {

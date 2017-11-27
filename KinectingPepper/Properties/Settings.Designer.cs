@@ -22,5 +22,29 @@ namespace Kinect_ing_Pepper.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public int PersonNumber {
+            get {
+                return ((int)(this["PersonNumber"]));
+            }
+            set {
+                this["PersonNumber"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\images\\Pepper")]
+        public string LastPlaybackPath {
+            get {
+                return ((string)(this["LastPlaybackPath"]));
+            }
+            set {
+                this["LastPlaybackPath"] = value;
+            }
+        }
     }
 }

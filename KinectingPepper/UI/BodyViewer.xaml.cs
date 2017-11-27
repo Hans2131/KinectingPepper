@@ -18,6 +18,8 @@ using Kinect_ing_Pepper.Enums;
 using Kinect_ing_Pepper.Business;
 using Kinect_ing_Pepper.Models;
 using System.Diagnostics;
+using AForge.Video.FFMPEG;
+using System.Drawing;
 
 namespace Kinect_ing_Pepper.UI
 {
@@ -85,8 +87,16 @@ namespace Kinect_ing_Pepper.UI
         {
             if (canvasSkeleton.ActualWidth == 0)
             {
-                canvasSkeleton.Width = 1920;
-                canvasSkeleton.Height = 1080;
+                if (cameraType == ECameraType.Color)
+                {
+                    canvasSkeleton.Width = 1920;
+                    canvasSkeleton.Height = 1080;
+                }
+                else
+                {
+                    canvasSkeleton.Width = 512;
+                    canvasSkeleton.Height = 424;
+                }
             }
 
             DeleteUntrackedBodies(trackedBodies);
