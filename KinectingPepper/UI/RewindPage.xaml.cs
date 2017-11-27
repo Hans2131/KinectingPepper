@@ -4,16 +4,13 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
-using Microsoft.Kinect;
 using Kinect_ing_Pepper.Enums;
 using Kinect_ing_Pepper.Business;
 using Kinect_ing_Pepper.Models;
 using System.Windows.Media;
 using Microsoft.Win32;
 using System.IO;
-using System.Drawing;
-using System.Threading.Tasks;
-using System.Diagnostics;
+using System.Xml.Serialization;
 
 namespace Kinect_ing_Pepper.UI
 {
@@ -41,11 +38,6 @@ namespace Kinect_ing_Pepper.UI
         private void Page_Unloaded(object sender, RoutedEventArgs e)
         {
 
-        }
-
-        private void cbxCameraType_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            Enum.TryParse<ECameraType>(cbxCameraType.SelectedValue.ToString(), out _selectedCamera);
         }
 
         private void selectFile_Click(object sender, RoutedEventArgs e)
@@ -97,36 +89,14 @@ namespace Kinect_ing_Pepper.UI
                     slrFrameProgress.Maximum = 0;
                     slrFrameProgress.Maximum = _skeletonFrames.Count - 1;
 
+                    bodyViewer.DeleteUntrackedBodies(new List<BodyWrapper>());
+                    _playBackFrames = true;
+
                     CompositionTarget.Rendering += CompositionTarget_Rendering;
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
-                }
-            }
-        }
-
-        public void CleanData()
-        {
-            string folder = @"C:\images\Pepper opnames studenten - Cleaned FileNames";
-            string[] subdirectoryEntries = Directory.GetDirectories(folder);
-
-            foreach (string subfolder in subdirectoryEntries)
-            {
-                string subDir = Path.Combine(folder, subfolder);
-                string[] fileEntries = Directory.GetFiles(subDir);
-
-                string[] xmlFiles = fileEntries.Where(x => x.EndsWith(".xml")).ToArray();
-                string[] mp4Files = fileEntries.Where(x => x.EndsWith(".mp4")).ToArray();
-
-                for (int i = 0; i < xmlFiles.Length; i++)
-                {
-                    string mp4Name = Path.GetFileNameWithoutExtension(mp4Files[i]);
-                    string newXmlName = Path.Combine(Path.GetDirectoryName(xmlFiles[i]), mp4Name.Replace("Depth_", "") + ".xml");
-                    File.Move(xmlFiles[i], newXmlName);
-
-                    string newMpName = mp4Files[i].Replace("Depth_", "Depth ");
-                    File.Move(mp4Files[i], newMpName);
                 }
             }
         }
@@ -236,6 +206,43 @@ namespace Kinect_ing_Pepper.UI
 
             if (_skeletonFrames != null && _skeletonFrames.Count > 0)
                 bodyViewer.RenderBodies(_skeletonFrames[_currentFrameNumber].TrackedBodies, _selectedCamera);
+        }
+
+        private void Csv_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.FolderBrowserDialog dialog = new System.Windows.Forms.FolderBrowserDialog();
+            dialog.SelectedPath = Properties.Settings.Default.LastPlaybackPath;
+            System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                XmlDirToCSV(dialog.SelectedPath);
+            }
+        }
+
+        private void XmlDirToCSV(string pathName)
+        {
+            DirectoryInfo di = new DirectoryInfo(pathName);
+
+            foreach (var subDir in di.GetDirectories())
+            {
+                foreach (var file in subDir.GetFiles())
+                {
+                    if (file.Name.EndsWith(".xml"))
+                    {
+                        var csvName = file.FullName.Replace(".xml", ".csv");
+                        var serializer = new XmlSerializer(typeof(List<BodyFrameWrapper>));
+                        var reader = new StreamReader(file.FullName);
+                        var bfws = (List<BodyFrameWrapper>)serializer.Deserialize(reader);
+                        var csvSaver = new CSVWriter();
+                        foreach (var bfw in bfws)
+                        {
+                            csvSaver.SaveSkeletonFrame(bfw);
+                        }
+                        csvSaver.SaveCSV(csvName);
+                    }
+                }
+            }
         }
     }
 }
