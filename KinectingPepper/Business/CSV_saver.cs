@@ -51,10 +51,6 @@ namespace Kinect_ing_Pepper.Business
                 {
                     var jr = new JointRow(jw, bfw.RelativeTimeString, this.frameCounter, bw.TrackingId, jw.TrackingState);
                     jList.Add(jr);
-                    if (frameCounter == 99)
-                    {
-                        Console.WriteLine(jr.ToString());
-                    }
                 }
 
             }

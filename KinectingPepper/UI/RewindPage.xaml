@@ -25,7 +25,7 @@
                 <ColumnDefinition Width="auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Name="btnSelectFile" Margin="10 5 0 0" HorizontalAlignment="Left" Padding="20 5 20 5" Click="selectFile_Click">Select file</Button>
-            <Button Grid.Column="1" Name="btnXMLtoCSV" Margin="10 5 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="40" Click="csv_Click">C:\xml__to__csv to CSVs</Button>
+            <Button Grid.Column="1" Name="btnXMLtoCSV" Margin="10 5 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="40" Click="Csv_Click">Parse CSV's</Button>
             <Button Grid.Column="2" Name="btnStartPlayer" Margin="10 5 0 0" HorizontalAlignment="Left" Padding="10 5 10 5" Width="150" Click="startPlayer_Click">Play</Button>
             <Button Grid.Column="3" Name="btnPausePlayer" Margin="10 5 20 0" HorizontalAlignment="Left" Padding="10 5 10 5" Width="150" Click="pausePlayer_Click">Pause</Button>
             <Slider Grid.Column="4" Name="slrFrameProgress" Margin="20 10 40 0" Maximum="100" TickPlacement="BottomRight" TickFrequency="1" IsMoveToPointEnabled="True" ValueChanged="slrFrameProgress_ValueChanged"/>
