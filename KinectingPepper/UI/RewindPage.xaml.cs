@@ -89,6 +89,9 @@ namespace Kinect_ing_Pepper.UI
                     slrFrameProgress.Maximum = 0;
                     slrFrameProgress.Maximum = _skeletonFrames.Count - 1;
 
+                    bodyViewer.DeleteUntrackedBodies(new List<BodyWrapper>());
+                    _playBackFrames = true;
+
                     CompositionTarget.Rendering += CompositionTarget_Rendering;
                 }
                 catch (Exception ex)
