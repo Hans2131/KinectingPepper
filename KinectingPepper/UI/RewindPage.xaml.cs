@@ -23,7 +23,6 @@ namespace Kinect_ing_Pepper.UI
         private readonly Frame navigationFrame;
 
         private List<BodyFrameWrapper> _skeletonFrames;
-        private List<ImageSource> _videoFrames;
 
         private bool _playBackFrames = false;
         private int _currentFrameNumber = 0;
@@ -37,7 +36,7 @@ namespace Kinect_ing_Pepper.UI
 
         private void Page_Unloaded(object sender, RoutedEventArgs e)
         {
-
+            StopPlaying();
         }
 
         private void selectFile_Click(object sender, RoutedEventArgs e)
@@ -80,7 +79,6 @@ namespace Kinect_ing_Pepper.UI
                             fullMp4Path = openFileDialog1.FileName;
                         }
                     }
-                    _videoFrames = null;
 
                     DiskIOManager.Instance.InitVideoReader(fullMp4Path);
                     _skeletonFrames = DiskIOManager.Instance.DeserializeFromXML(fullXMLPath);
@@ -197,10 +195,7 @@ namespace Kinect_ing_Pepper.UI
 
         private void UpdateImaging()
         {
-            //deactivate frameslider event so avoid updating imaging at the same time, 
-            //which is possible because of the loading of the video frame from disk.
-            //activate again at the end.
-            slrFrameProgress.ValueChanged -= slrFrameProgress_ValueChanged;
+            Debug.WriteLine("Update Image");
 
             txtFrameTime.Text = (_currentFrameNumber + 1).ToString();
             slrFrameProgress.Value = _currentFrameNumber;
@@ -208,9 +203,9 @@ namespace Kinect_ing_Pepper.UI
             bodyViewer.KinectImage = DiskIOManager.Instance.GetFrameByIndex(_currentFrameNumber);
 
             if (_skeletonFrames != null && _skeletonFrames.Count > 0)
+            {
                 bodyViewer.RenderBodies(_skeletonFrames[_currentFrameNumber].TrackedBodies, _selectedCamera);
-
-            slrFrameProgress.ValueChanged += slrFrameProgress_ValueChanged;
+            }
         }
 
         private void Csv_Click(object sender, RoutedEventArgs e)

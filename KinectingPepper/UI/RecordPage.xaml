@@ -6,7 +6,7 @@
       xmlns:local="clr-namespace:Kinect_ing_Pepper.UI"
       mc:Ignorable="d" 
       d:DesignHeight="300" d:DesignWidth="300"
-      Title="SkeletonViewer">
+      Title="SkeletonViewer" Loaded="Page_Loaded" Unloaded="Page_Unloaded">
 
     <Grid>
         <Grid.RowDefinitions>

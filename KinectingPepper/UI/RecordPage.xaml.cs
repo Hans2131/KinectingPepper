@@ -42,12 +42,23 @@ namespace Kinect_ing_Pepper.UI
 
             rewindPage = new RewindPage(navigationFrame);
             this.navigationFrame = navigationFrame;
-
-            RestartKinect();
+            
             cbxCameraType.ItemsSource = Enum.GetValues(typeof(ECameraType)).Cast<ECameraType>();
             cbxCameraType.SelectedIndex = 1;
 
             txtPersonNumber.Text = Properties.Settings.Default.PersonNumber.ToString();
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            RestartKinect();
+        }
+
+        private void Page_Unloaded(object sender, RoutedEventArgs e)
+        {
+            bodyViewer.Clear();
+            if (_reader != null) _reader.Dispose();
+            KinectHelper.Instance.StopKinect();
         }
 
         private void RestartKinect()
