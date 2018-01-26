@@ -195,8 +195,6 @@ namespace Kinect_ing_Pepper.UI
 
         private void UpdateImaging()
         {
-            Debug.WriteLine("Update Image");
-
             txtFrameTime.Text = (_currentFrameNumber + 1).ToString();
             slrFrameProgress.Value = _currentFrameNumber;
 
